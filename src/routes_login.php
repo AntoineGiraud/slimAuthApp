@@ -33,7 +33,8 @@ $app->post('/login', function ($request, $response, $args) {
     $RouteHelper = new \VisuLignes\RouteHelper($this, $request, 'Login');
 
     if(!empty($_POST['email']) && !empty($_POST['password'])){
-        if($Auth->login($_POST)){
+        if($Auth->loginUsingConf($_POST)){
+        // if($Auth->login($_POST)){
             $this->flash->addMessage('success', 'Vous êtes maintenant connecté');
             return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
         } else {

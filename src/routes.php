@@ -31,6 +31,6 @@ $app->get('/', function ($request, $response, $args) {
     
     // Render index view
     $this->renderer->render($response, 'header.php', compact('flash', 'RouteHelper', 'Auth', $args));
-    $this->renderer->render($response, 'home.php', compact('RouteHelper', $args));
+    $this->renderer->render($response, 'home.php', compact('RouteHelper', 'Auth', $args));
     return $this->renderer->render($response, 'footer.php', compact('RouteHelper', 'Auth', $args));
 })->setName('home');

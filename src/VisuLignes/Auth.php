@@ -40,6 +40,36 @@ class Auth{
         return false;
     }
 
+    function loginUsingConf($d){
+        global $DB, $settings;
+        $this->roles = $settings['settings']['Auth']['roles'];
+
+        $d = array(
+            'email' => $d['email'],
+            'password' => md5($d['password'])
+        );
+
+        $return = [];
+        foreach ($settings['settings']['Auth']['users'] as $user) {
+            if ($user['email'] == $d['email'] && $user['password'] == $d['password'] ){
+                $return = $user;
+                break;
+            }
+        }
+
+        if (empty($return)) {
+            // $this->flash->addMessage('warning', "Vous n'avez pas les droits d'accéder au site.<br>Faites la demande aux responsables au besoin.");
+            return false;
+        }else if($return['online'] == 1 && $return['level'] != 0){ // si l'utilisateur est actif dans la BDD
+            $_SESSION['Auth'] = array();
+            $_SESSION['Auth'] = $return;
+            return true;
+        }else{
+            $this->flash->addMessage('warning', '<strong>Votre compte n\'est pas actif !</strong><br/>Veuillez attendre que les administrateurs activent votre compte ou contactez nous !');
+        }
+        return false;
+    }
+
     function loginUsingCas($ticket, $service){
         global $DB;
         $CAS = new \VisuLignes\Cas($this->casUrl);

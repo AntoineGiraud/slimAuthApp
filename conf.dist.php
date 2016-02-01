@@ -26,6 +26,26 @@ return [
             'sql_db'   => "visulignes",
             'sql_user' => "root",
             'sql_pass' => ""
+        ],
+
+        'Auth' => [
+            'roles' => [
+                ['level' => 2, 'name' => 'Administrateur', 'slug' => 'admin'],
+                ['level' => 1, 'name' => 'Membre', 'slug' => 'member'],
+                ['level' => 0, 'name' => 'Non inscrit', 'slug' => 'non-inscrit']
+            ],
+            'users' => [
+                [
+                    'email' => 'antoine.giraud@xxx',
+                    'password' => 'xxx',
+                    'nom' => 'Giraud',
+                    'prenom' => 'Antoine',
+                    'online' => '1',
+                    'name' => 'Administrateur',
+                    'slug' => 'admin',
+                    'level' => '2'
+                ]
+            ]
         ]
 
     ]
