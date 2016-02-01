@@ -1,0 +1,2 @@
+<h1 class="page-header">A propos</h1>
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minus dignissimos explicabo cum veritatis nostrum, velit quod minima. Quaerat fugit ipsum magni fugiat aliquam totam, similique enim architecto, laboriosam, vero beatae!</p>

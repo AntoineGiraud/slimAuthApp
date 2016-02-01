@@ -1,0 +1,22 @@
+{
+    "name": "PolyMtl/VisuLignesRTL",
+    "description": "A web app to visualize the RTL bus Network.",
+    "keywords": ["PolyMtl", "RTL", "VisuLignes"],
+    "type": "project",
+    "authors": [
+        {
+            "name": "Antoine Giraud"
+        }
+    ],
+    "autoload": {
+        "classmap": [],
+        "psr-0": { "VisuLignes": "src" }
+    },
+    "require": {
+        "php": ">=5.5.0",
+        "slim/slim": "~3.0",
+        "slim/php-view": "^2.0",
+        "monolog/monolog": "^1.17",
+        "slim/flash": "^0.1.0"
+    }
+}
