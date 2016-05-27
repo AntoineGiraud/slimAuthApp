@@ -1,68 +1,56 @@
 <?php
 
 namespace VisuLignes;
+use \Exception;
 
 class Auth{
-    
-    private $roles;
-    private $flash;
-    private $casUrl;
 
-    function __construct($casUrl){
-        global $DB;
-        $this->casUrl = $casUrl;
-        $this->roles = $DB->query('SELECT * FROM roles');
+    private $flash;
+    public $casUrl;
+    private $roles;
+
+    function __construct($AuthConfig){
+        global $DB, $settings;
+        $this->casUrl = !empty($AuthConfig['casUrl']) ? $AuthConfig['casUrl'] : null;
+        if (!empty($AuthConfig['roles'])){
+            $this->sourceConfig = "conf file";
+            $this->roles = $AuthConfig['roles'];
+        } else if(!empty($DB)){
+            $this->sourceConfig = "database";
+            $this->roles = $DB->query('SELECT * FROM roles');
+        } else
+            throw new Exception("On ne va pas réussi à vous authentifier ... vérifiez la configuration du site web ...", 1);
     }
     function setFlashCtrl($flash){
         $this->flash = $flash;
     }
 
+    function fetchUser($mail, $pswd=null, $ignorePswd=false){
+        if ($this->sourceConfig == "conf file") {
+            global $settings;
+            foreach ($settings['settings']['Auth']['users'] as $user) {
+                if ($user['email'] == $mail && ( $user['password'] == $pswd || $user['password'] == md5($pswd) || $ignorePswd))
+                    return $user;
+            }
+        }else if($this->sourceConfig = "database"){
+            global $DB;
+            if ($ignorePswd)
+                return $DB->queryFirst('SELECT administrateurs.id, administrateurs.email,administrateurs.nom,administrateurs.prenom,administrateurs.online,roles.name,roles.slug,roles.level FROM administrateurs LEFT JOIN roles ON administrateurs.role_id=roles.id WHERE email=:email', ['email'=>$mail]);
+            else
+                return $DB->queryFirst('SELECT administrateurs.id, administrateurs.email,administrateurs.nom,administrateurs.prenom,administrateurs.online,roles.name,roles.slug,roles.level FROM administrateurs LEFT JOIN roles ON administrateurs.role_id=roles.id WHERE email=:email AND password=:password', ['email'=>$mail, 'password'=>md5($pswd)]);
+        }
+    }
+
     function login($d){
         global $DB;
 
-        $d = array(
-            'email' => $d['email'],
-            'password' => md5($d['password'])
-        );
-
-        $return = $DB->queryFirst('SELECT administrateurs.id, administrateurs.email,administrateurs.nom,administrateurs.prenom,administrateurs.online,roles.name,roles.slug,roles.level FROM administrateurs LEFT JOIN roles ON administrateurs.role_id=roles.id WHERE email=:email AND password=:password',
-            $d);
-        if (empty($return)) {
+        $user = $this->fetchUser($d['email'], $d['password']);
+        if (empty($user)) {
             // $this->flash->addMessage('warning', "Vous n'avez pas les droits d'accéder au site.<br>Faites la demande aux responsables au besoin.");
             return false;
-        }else if($return['online'] == 1 && $return['level'] != 0){ // si l'utilisateur est actif dans la BDD
+        }else if($user['online'] == 1 && $user['level'] != 0){ // si l'utilisateur est actif dans la BDD
             $_SESSION['Auth'] = array();
-            $_SESSION['Auth'] = $return;
-            return true;
-        }else{
-            $this->flash->addMessage('warning', '<strong>Votre compte n\'est pas actif !</strong><br/>Veuillez attendre que les administrateurs activent votre compte ou contactez nous !');
-        }
-        return false;
-    }
-
-    function loginUsingConf($d){
-        global $DB, $settings;
-        $this->roles = $settings['settings']['Auth']['roles'];
-
-        $d = array(
-            'email' => $d['email'],
-            'password' => md5($d['password'])
-        );
-
-        $return = [];
-        foreach ($settings['settings']['Auth']['users'] as $user) {
-            if ($user['email'] == $d['email'] && $user['password'] == $d['password'] ){
-                $return = $user;
-                break;
-            }
-        }
-
-        if (empty($return)) {
-            // $this->flash->addMessage('warning', "Vous n'avez pas les droits d'accéder au site.<br>Faites la demande aux responsables au besoin.");
-            return false;
-        }else if($return['online'] == 1 && $return['level'] != 0){ // si l'utilisateur est actif dans la BDD
-            $_SESSION['Auth'] = array();
-            $_SESSION['Auth'] = $return;
+            $_SESSION['Auth'] = $user;
             return true;
         }else{
             $this->flash->addMessage('warning', '<strong>Votre compte n\'est pas actif !</strong><br/>Veuillez attendre que les administrateurs activent votre compte ou contactez nous !');
@@ -71,29 +59,22 @@ class Auth{
     }
 
     function loginUsingCas($ticket, $service){
-        global $DB;
         $CAS = new \VisuLignes\Cas($this->casUrl);
-
         try {
             $userEmail = $CAS->authenticate($ticket, $service);
         } catch (\Exception $e) {
             $this->flash->addMessage('warning', $e->getMessage());
             return false;
         }
-
-        if (!empty($userEmail) && $DB->findCount('administrateurs',array('email'=>$userEmail),'email') == 1) {
-            $return = $DB->queryFirst('SELECT administrateurs.id, administrateurs.email,administrateurs.nom,administrateurs.prenom,administrateurs.online,roles.name,roles.slug,roles.level FROM administrateurs LEFT JOIN roles ON administrateurs.role_id=roles.id WHERE email=:email',array('email'=>$userEmail));
-            if (empty($return)) {
-                $this->flash->addMessage('warning', "Vous n'avez pas les droits d'accéder au site.<br>Faites la demande aux responsables au besoin.");
-                return false;
-            }else if($return['online'] == 1 && $return['level'] != 0){ // si l'utilisateur est actif dans la BDD
+        $user = (!empty($userEmail))? $this->fetchUser($userEmail, null, true) : null;
+        if (!empty($user)) {
+            if($user['online'] == 1 && $user['level'] != 0){ // si l'utilisateur est actif dans la BDD
                 $_SESSION['Auth'] = array();
-                $_SESSION['Auth'] = $return;
+                $_SESSION['Auth'] = $user;
                 $_SESSION['Auth']['loggedUsingCas'] = true;
                 return true;
-            }else{
+            }else
                 $this->flash->addMessage('warning', '<strong>Votre compte n\'est pas actif !</strong><br/>Veuillez attendre que les administrateurs activent votre compte ou contactez nous !');
-            }
         }else if ($userEmail == 'AuthenticationFailure' || $userEmail == "Cas return is weird" || $userEmail == "Return cannot be parsed") {
             $this->flash->addMessage('danger', $userEmail);
             return false;
@@ -102,55 +83,52 @@ class Auth{
         }
         return false;
     }
-    
+
     /**
      * Autorise un rang à accéder à une page, redirige vers forbidden sinon
      * */
     function allow($rang){
         $roles = $this->getLevels();
-        if(!$this->getUserField('slug')){
-            $this->forbidden(); 
+        if(!$this->getSessionUserField('slug')){
+            $this->forbidden();
         }else{
-            if($roles[$rang] > $this->getUserField('level')){
-                $this->forbidden(); 
+            if($roles[$rang] > $this->getSessionUserField('level')){
+                $this->forbidden();
             }else{
                 return true;
             }
         }
     }
-
     function hasRole($rang){
         $roles = $this->getLevels();
-        if(!$this->getUserField('slug')){
+        if(!$this->getSessionUserField('slug')){
             return false;
         }else{
-            if($roles[$rang] > $this->getUserField('level')){
+            if($roles[$rang] > $this->getSessionUserField('level')){
                 return false;
             }else{
                 return true;
             }
         }
     }
-    
     /**
      * Récupère une info utilisateur
      ***/
-    function getUserField($field){
-        if($field == 'role') $field = 'slug'; 
+    function getSessionUserField($field){
+        if($field == 'role') $field = 'slug';
         if(isset($_SESSION['Auth'][$field])){
             return $_SESSION['Auth'][$field];
         }else{
-            return false; 
+            return false;
         }
     }
-    
     /**
      * Récupère une info utilisateur
      ***/
-    function getUser(){
+    function getSessionUser(){
         return $_SESSION['Auth'];
     }
-    
+
     /**
      * Redirige un utilisateur
      * */
@@ -190,13 +168,13 @@ class Auth{
             return false;
     }
     function isLogged(){ // vérification de de l'existence d'une session "Auth", d'une session ouverte
-        if ($this->getUserField('level') !== false && $this->getUserField('level') >= 0)
+        if ($this->getSessionUserField('level') !== false && $this->getSessionUserField('level') >= 0)
             return true;
         else
             return false;
     }
     function isAdmin(){ //vérification que l'utilisateur loggué est administrateur
-        if ($this->getUserField('role') == 'admin')
+        if ($this->getSessionUserField('role') == 'admin')
             return true;
         else
             return false;
@@ -208,9 +186,9 @@ class Auth{
         if ($key != 'slug' || $key != 'id')
             $key = 'slug';
 
-        $roles = array(); 
+        $roles = array();
         foreach($this->roles as $d){
-            $roles[$d[$key]] = $d['level']; 
+            $roles[$d[$key]] = $d['level'];
         }
         return $roles;
     }
@@ -219,9 +197,9 @@ class Auth{
         if ($key != 'slug' || $key != 'id')
             $key = 'id';
 
-        $roles = array(); 
+        $roles = array();
         foreach($this->roles as $d){
-            $roles[$d[$key]] = $d['name']; 
+            $roles[$d[$key]] = $d['name'];
         }
         return $roles;
     }

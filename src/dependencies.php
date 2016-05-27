@@ -29,6 +29,10 @@ $container['logger'] = function ($c) {
 
 
 $confSQL = $settings['settings']['confSQL'];
-$DB = new \VisuLignes\DB($confSQL['sql_host'],$confSQL['sql_user'],$confSQL['sql_pass'],$confSQL['sql_db']);
+try {
+    $DB = new \VisuLignes\DB($confSQL['sql_host'],$confSQL['sql_user'],$confSQL['sql_pass'],$confSQL['sql_db']);
+} catch (Exception $e) {
+    $DB = null;
+}
 
-$Auth = new \VisuLignes\Auth($settings['settings']['casUrl']);
+$Auth = new \VisuLignes\Auth($settings['settings']['Auth']);

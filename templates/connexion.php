@@ -69,7 +69,7 @@
           <div class="alert alert-<?= $key ?>"><button class="close" data-dismiss="alert">×</button><?php echo $flashMsg ?></div>
         <?php endforeach ?>
       <?php endforeach ?>
-      
+
       <form class="form-signin<?= (isset($_GET['errorLogin']))?' has-error':''; ?>" role="form" action="<?= $RouteHelper->getPathFor('login') ?>" method="POST">
         <p style="text-align:center"><img src="<?= $RouteHelper->publicPath ?>/img/PayIcam.png" alt="Logo PolyMtl" style="max-width:200px;"></p>
         <h2 class="form-signin-heading">Identifiez-vous !</h2>
@@ -77,7 +77,9 @@
         <input type="email" name="email" class="form-control" placeholder="Email" required autofocus>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Se connecter</button>
-        <a href="<?= $casUrl ?>" class="btn btn-lg btn-info btn-block">Ou avec cas.icam.fr</a>
+        <?php if (!empty($Auth->casUrl)): ?>
+        <a href="<?= $casUrl ?>" class="btn btn-lg btn-info btn-block">Ou avec <?= basename(dirname($Auth->casUrl)) ?></a>
+        <?php endif; ?>
       </form>
         <hr>
         <p style="text-align:center"><em>Page d'authentification vers le portail VisuLignes</em></p>

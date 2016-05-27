@@ -23,7 +23,7 @@ $app->get('/login', function ($request, $response, $args) {
 
     $flash = $this->flash;
     $tokenForm = \VisuLignes\Auth::generateToken();
-    $casUrl = $this->get('settings')['casUrl']."login?service=".urlencode($service);
+    $casUrl = $this->get('settings')['Auth']['casUrl']."login?service=".urlencode($service);
     return $this->renderer->render($response, 'connexion.php', compact('RouteHelper', 'flash', 'Auth', 'tokenForm', 'casUrl', $args));
 })->setName('login');
 
@@ -33,7 +33,7 @@ $app->post('/login', function ($request, $response, $args) {
     $RouteHelper = new \VisuLignes\RouteHelper($this, $request, 'Login');
 
     if(!empty($_POST['email']) && !empty($_POST['password'])){
-        if($Auth->loginUsingConf($_POST)){
+        if($Auth->login($_POST)){
         // if($Auth->login($_POST)){
             $this->flash->addMessage('success', 'Vous êtes maintenant connecté');
             return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
@@ -55,7 +55,7 @@ $app->get('/logout', function ($request, $response, $args) {
 
     if($Auth->isLoggedUsingCas()) {
         $service = $RouteHelper->curPageBaseUrl. '/login';
-        $casUrl = $this->get('settings')['casUrl']."logout?url=".urlencode($service);
+        $casUrl = $this->get('settings')['Auth']['casUrl']."logout?url=".urlencode($service);
         session_destroy();
         return $response->withStatus(303)->withHeader('Location', $casUrl);
     } else {

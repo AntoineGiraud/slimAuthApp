@@ -19,7 +19,6 @@ return [
         'webSiteTitle' => 'VisuLignes',
         'emailContactGala' => 'contact@xxx',
 
-        'casUrl' => 'https://cas.icam.fr/cas/',
 
         'confSQL' => [
             'sql_host' => "localhost",
@@ -29,22 +28,24 @@ return [
         ],
 
         'Auth' => [
-            'roles' => [
-                ['level' => 2, 'name' => 'Administrateur', 'slug' => 'admin'],
-                ['level' => 1, 'name' => 'Membre', 'slug' => 'member'],
-                ['level' => 0, 'name' => 'Non inscrit', 'slug' => 'non-inscrit']
-            ],
-            'users' => [
-                [
-                    'email' => 'antoine.giraud@xxx',
-                    'password' => 'xxx',
-                    'nom' => 'Giraud',
-                    'prenom' => 'Antoine',
-                    'online' => '1',
-                    'name' => 'Administrateur',
-                    'slug' => 'admin',
-                    'level' => '2'
-                ]
+            'casUrl' => 'https://cas.icam.fr/cas/',
+            // Si vous voulez utiliser une configuration locale des roles & users, décommentez roles & users. Sinon, vous devez avoir en base de données les tables équivalentes ! confer db_creation !
+            // 'roles' => [
+            //     ['level' => 2, 'name' => 'Administrateur', 'slug' => 'admin'],
+            //     ['level' => 1, 'name' => 'Membre', 'slug' => 'member'],
+            //     ['level' => 0, 'name' => 'Non inscrit', 'slug' => 'non-inscrit']
+            // ],
+            // 'users' => [
+            //     [
+            //         'email' => 'antoine.giraud@xxx',
+            //         'password' => 'xxx',
+            //         'nom' => 'Giraud',
+            //         'prenom' => 'Antoine',
+            //         'online' => '1',
+            //         'name' => 'Administrateur',
+            //         'slug' => 'admin',
+            //         'level' => '2'
+            //     ]
             ]
         ]
 
