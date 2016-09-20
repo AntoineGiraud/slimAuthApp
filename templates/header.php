@@ -5,11 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
      <!-- Le styles -->
-    <link href="<?= $RouteHelper->publicPath ?>css/bootstrap.min.css" rel="stylesheet">
-    <link href="<?= $RouteHelper->publicPath ?>css/main.css" rel="stylesheet">
+    <link href="<?= $RouteHelper->publicUrl ?>css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= $RouteHelper->publicUrl ?>css/main.css" rel="stylesheet">
+
     <meta name="description" content="VisuLignes - Connexion">
     <meta name="author" content="Antoine Giraud">
-    <link rel="shortcut icon" href="<?= $RouteHelper->publicPath ?>/img/favicon.png">
+    <link rel="shortcut icon" href="<?= $RouteHelper->publicUrl ?>/img/favicon.ico">
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <link href="http://getbootstrap.com/assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
@@ -32,20 +33,20 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="<?= $RouteHelper->getPathFor() ?>">Visu Lignes</a>
+          <a class="navbar-brand" href="<?= $RouteHelper->getPathFor() ?>">SlimAuthApp</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li<?php if($RouteHelper->curPage == '/') echo ' class="active"'; ?>><a href="<?= $RouteHelper->getPathFor() ?>">Home</a></li>
             <li<?php if($RouteHelper->curPage == 'about') echo ' class="active"'; ?>><a href="<?= $RouteHelper->getPathFor('about') ?>">A propos</a></li>
-            <?php if ($Auth->memberCanAccessPages('vue_operations', 'vuePersoOperations')): ?>
+            <?php if ($Auth->memberCanAccessPages('operations/vue_operations', 'operations/vuePersoOperations')): ?>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Opérations <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li class="dropdown-header">Liens pour les opérations</li>
-                <?= $RouteHelper->showLinkLi('vue_operations', 'Vue opérations') ?>
+                <?= $RouteHelper->showLinkLi('operations/vue_operations', 'Vue opérations') ?>
                 <li role="separator" class="divider"></li>
-                <?= $RouteHelper->showLinkLi('vuePersoOperations', 'Vue perso opérations', '?param=1') ?>
+                <?= $RouteHelper->showLinkLi('operations/vuePersoOperations', 'Vue perso opérations', '?param=1') ?>
               </ul>
             </li>
             <?php endif ?>
@@ -57,7 +58,7 @@
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <?= $RouteHelper->showLinkLi('list_droits', "Liste des droits") ?>
+                <?= $RouteHelper->showLinkLi('admin/list_droits', "Liste des droits") ?>
               </ul>
             </li>
             <?php endif ?>

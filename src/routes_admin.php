@@ -1,7 +1,7 @@
 <?php
 
 // Page ouverte à tous
-$app->get('/list_droits', function ($request, $response, $args) {
+$app->get('/admin/list_droits', function ($request, $response, $args) {
     global $Auth, $settings;
 
     $flash = $this->flash;
@@ -10,6 +10,6 @@ $app->get('/list_droits', function ($request, $response, $args) {
     $SettingsAuth = $settings['settings']['Auth'];
 
     $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
-    $this->renderer->render($response, 'list_droits.php', compact('Auth', 'RouteHelper', 'SettingsAuth', $args));
+    $this->renderer->render($response, 'admin/list_droits.php', compact('Auth', 'RouteHelper', 'SettingsAuth', $args));
     return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
-})->setName('list_droits');
+})->setName('admin/list_droits');

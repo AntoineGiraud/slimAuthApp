@@ -24,7 +24,7 @@ $app->get('/login', function ($request, $response, $args) {
     $flash = $this->flash;
     $tokenForm = \CoreHelpers\Auth::generateToken();
     $casUrl = $this->get('settings')['Auth']['casUrl']."login?service=".urlencode($service);
-    return $this->renderer->render($response, 'connexion.php', compact('RouteHelper', 'flash', 'Auth', 'tokenForm', 'casUrl', $args));
+    return $this->renderer->render($response, 'auth/connexion.php', compact('RouteHelper', 'flash', 'Auth', 'tokenForm', 'casUrl', $args));
 })->setName('login');
 
 $app->post('/login', function ($request, $response, $args) {

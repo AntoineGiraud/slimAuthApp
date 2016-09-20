@@ -24,9 +24,9 @@ require __DIR__ . '/src/middleware.php';
 
 // Register routes
 require __DIR__ . '/src/routes.php';
-require __DIR__ . '/src/routes_login.php';
+require __DIR__ . '/src/routes_auth.php';
 require __DIR__ . '/src/routes_admin.php';
-require __DIR__ . '/src/routes_dispatch.php';
+require __DIR__ . '/src/routes_operations.php';
 
 // Run app
 $app->run();

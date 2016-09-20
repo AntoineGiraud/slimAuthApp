@@ -15,10 +15,9 @@ return [
             'path' => __DIR__ . '/logs/app.log'
         ],
 
+        'public_url' => '/simpleSlimAppWithAuthentification/public/',
         'public_path' => 'public/',
-        'webSiteTitle' => 'VisuLignes',
-        'emailContactGala' => 'contact@xxx',
-
+        'webSiteTitle' => 'SlimAuthApp',
 
         'confSQL' => [
             'sql_host' => "localhost",
@@ -39,7 +38,7 @@ return [
             // 'allowedRoutes' => [
             //     'forRole' => [ // droits spécifiques pour un groupe d'utilisateurs donné
             //         'opearation' => [
-            //             'vue_oparations',
+            //             'vue_operations',
             //             'vuePersoOperation'
             //         ]
             //         // ...

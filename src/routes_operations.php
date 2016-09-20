@@ -5,22 +5,22 @@
 ///////////////////////////////
 
 // Page ouverte à tous
-$app->get('/vue_operations', function ($request, $response, $args) {
+$app->get('/operations/vue_operations', function ($request, $response, $args) {
     global $Auth;
 
     $flash = $this->flash;
     $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'vue opérations');
 
     $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', $args));
-    $this->renderer->render($response, 'vue_operations.php', compact('Auth', $args));
+    $this->renderer->render($response, 'operations/vue_operations.php', compact('Auth', $args));
     return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
-})->setName('vue_operations');
+})->setName('operations/vue_operations');
 
 /////////////////
 // Espace Icam //
 /////////////////
 
-$app->get('/vuePersoOperations', function ($request, $response, $args) {
+$app->get('/operations/vuePersoOperations', function ($request, $response, $args) {
     global $Auth, $DB;
 
     $flash = $this->flash;
@@ -31,6 +31,6 @@ $app->get('/vuePersoOperations', function ($request, $response, $args) {
 
     // Render index view
     $this->renderer->render($response, 'header.php', compact('flash', 'RouteHelper', 'Auth', $args));
-    $this->renderer->render($response, 'vuePersoOperations.php', compact('RouteHelper', 'Auth', $args));
+    $this->renderer->render($response, 'operations/vuePersoOperations.php', compact('RouteHelper', 'Auth', $args));
     return $this->renderer->render($response, 'footer.php', compact('RouteHelper', 'Auth', $args));
-})->setName('vuePersoOperations');
+})->setName('operations/vuePersoOperations');
