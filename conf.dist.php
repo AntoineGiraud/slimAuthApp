@@ -38,14 +38,14 @@ return [
             // 'allowedRoutes' => [
             //     'forRole' => [ // droits spécifiques pour un groupe d'utilisateurs donné
             //         'opearation' => [
-            //             'vue_operations',
-            //             'vuePersoOperation'
+            //             'operations/vue_operations',
+            //             'operations/vuePersoOperations'
             //         ]
             //         // ...
             //     ],
             //     'forUser' => [ // droits spécifiques pour un utilisateur donné
             //         'user2@entreprise' => [
-            //             'vuePersoOperation'
+            //             'operations/vuePersoOperations'
             //         ]
             //         // ...
             //     ]
