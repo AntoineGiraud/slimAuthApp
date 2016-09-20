@@ -1,6 +1,6 @@
 <?php
 
-namespace VisuLignes;
+namespace CoreHelpers;
 
 /**
 * A Helper class for links in view pages
@@ -23,6 +23,7 @@ class RouteHelper {
         $this->app = $app;
 
         $this->publicPath = $app->get('settings')['public_path'];
+        $this->publicUrl = $app->get('settings')['public_url'];
         $this->curPageUri = $request->getUri();
         $this->curPage = $request->getUri()->getPath();
         $this->curPageBasePath = $request->getUri()->getbasePath();
@@ -41,5 +42,11 @@ class RouteHelper {
         return $this->pageName . ' - ' . $this->webSiteTitle;
     }
 
-    
+    public function showLinkLi($page, $label, $args=""){
+        global $Auth;
+        if ($Auth->memberCanAccessPages($page)) {
+            return '<li><a href="'.$this->getPathFor($page) . $args.'">'.$label.'</a></li>';
+        }
+        return '';
+    }
 }

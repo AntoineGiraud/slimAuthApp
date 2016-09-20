@@ -1,6 +1,6 @@
 <?php
 
-namespace VisuLignes;
+namespace CoreHelpers;
 use \Exception;
 
 class Auth{
@@ -29,7 +29,7 @@ class Auth{
         if ($this->sourceConfig == "conf file") {
             global $settings;
             foreach ($settings['settings']['Auth']['users'] as $user) {
-                if ($user['email'] == $mail && ( $user['password'] == $pswd || $user['password'] == md5($pswd) || $ignorePswd))
+                if ($user['email'] == $mail && ( $user['password'] == $pswd || password_verify($pswd, $user['password']) || $ignorePswd))
                     return $user;
             }
         }else if($this->sourceConfig = "database"){
@@ -59,7 +59,7 @@ class Auth{
     }
 
     function loginUsingCas($ticket, $service){
-        $CAS = new \VisuLignes\Cas($this->casUrl);
+        $CAS = new \CoreHelpers\Cas($this->casUrl);
         try {
             $userEmail = $CAS->authenticate($ticket, $service);
         } catch (\Exception $e) {
@@ -86,18 +86,18 @@ class Auth{
 
     /**
      * Autorise un rang à accéder à une page, redirige vers forbidden sinon
-     * */
+     **/
     function allow($rang){
         $roles = $this->getLevels();
-        if(!$this->getSessionUserField('slug')){
+        if (!$this->getSessionUserField('slug')) {
             $this->forbidden();
-        }else{
-            if($roles[$rang] > $this->getSessionUserField('level')){
+        } else {
+            if($roles[$rang] > $this->getSessionUserField('level'))
                 $this->forbidden();
-            }else{
+            else
                 return true;
-            }
         }
+        return false;
     }
     function hasRole($rang){
         $roles = $this->getLevels();
@@ -110,6 +110,24 @@ class Auth{
                 return true;
             }
         }
+    }
+
+    function memberCanAccessPages(){
+        $pages = func_get_args();
+        global $settings;
+        if ($this->hasRole('admin'))
+            return true;
+        else {
+            foreach ($pages as $page) {
+                if (isset($settings['settings']['Auth']['allowedRoutes']['forRole'][$this->getSessionUserField('slug')])
+                      && in_array($page, $settings['settings']['Auth']['allowedRoutes']['forRole'][$this->getSessionUserField('slug')]))
+                    return true;
+                else if (isset($settings['settings']['Auth']['allowedRoutes']['forUser'][$this->getSessionUserField('email')])
+                      && in_array($page, $settings['settings']['Auth']['allowedRoutes']['forUser'][$this->getSessionUserField('email')]))
+                    return true;
+            }
+        }
+        return false;
     }
     /**
      * Récupère une info utilisateur
@@ -132,9 +150,9 @@ class Auth{
     /**
      * Redirige un utilisateur
      * */
-    function forbidden(){
-        Functions::setFlash('<strong>Identification requise</strong> Vous ne pouvez accéder à cette page.','danger');
-        header('Location:connection.php'.((!empty($_GET['ticket']))?'?ticket='.$_GET['ticket']:''));exit;
+    function forbidden($response, $router, $pageRenvoi="home"){
+        $this->flash->addMessage('danger', "<strong>Attention !</strong> Vous n'avez pas les droits pour accéder à cette page.");
+        return $response->withStatus(401)->withHeader('Location', $router->pathFor($pageRenvoi));
     }
 
     // -------------------- Security & Token functions -------------------- //

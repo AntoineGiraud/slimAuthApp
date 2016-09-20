@@ -1,9 +1,9 @@
 <?php
 
 
-namespace VisuLignes;
+namespace CoreHelpers;
 
-include('src/VisuLignes/httpful.phar');
+include('src/CoreHelpers/httpful.phar');
 
 class Cas{
     protected $url;

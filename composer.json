@@ -10,7 +10,7 @@
     ],
     "autoload": {
         "classmap": [],
-        "psr-0": { "VisuLignes": "src" }
+        "psr-4": { "": "src/" }
     },
     "require": {
         "php": ">=5.5.0",

@@ -32,8 +32,24 @@ return [
             // Si vous voulez utiliser une configuration locale des roles & users, décommentez roles & users. Sinon, vous devez avoir en base de données les tables équivalentes ! confer db_creation !
             // 'roles' => [
             //     ['level' => 2, 'name' => 'Administrateur', 'slug' => 'admin'],
+            //     ['level' => 1, 'name' => 'Oparation', 'slug' => 'oparation'],
             //     ['level' => 1, 'name' => 'Membre', 'slug' => 'member'],
             //     ['level' => 0, 'name' => 'Non inscrit', 'slug' => 'non-inscrit']
+            // ],
+            // 'allowedRoutes' => [
+            //     'forRole' => [ // droits spécifiques pour un groupe d'utilisateurs donné
+            //         'opearation' => [
+            //             'vue_oparations',
+            //             'vuePersoOperation'
+            //         ]
+            //         // ...
+            //     ],
+            //     'forUser' => [ // droits spécifiques pour un utilisateur donné
+            //         'user2@entreprise' => [
+            //             'vuePersoOperation'
+            //         ]
+            //         // ...
+            //     ]
             // ],
             // 'users' => [
             //     [
@@ -45,8 +61,28 @@ return [
             //         'name' => 'Administrateur',
             //         'slug' => 'admin',
             //         'level' => '2'
+            //     ],
+            //     [
+            //         'email' => 'user1@oparation',
+            //         'password' => 'xxx',
+            //         'nom' => 'User',
+            //         'prenom' => 'opérations #1',
+            //         'online' => '1',
+            //         'name' => 'Oparation',
+            //         'slug' => 'oparation',
+            //         'level' => '1'
+            //     ],
+            //     [
+            //         'email' => 'user2@entreprise',
+            //         'password' => 'xxx',
+            //         'nom' => 'User',
+            //         'prenom' => 'normal #2',
+            //         'online' => '1',
+            //         'name' => 'Membre',
+            //         'slug' => 'member',
+            //         'level' => '1'
             //     ]
-            ]
+            // ]
         ]
 
     ]

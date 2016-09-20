@@ -27,12 +27,12 @@ $container['logger'] = function ($c) {
 // Autre initialisations //
 ///////////////////////////
 
-
 $confSQL = $settings['settings']['confSQL'];
 try {
-    $DB = new \VisuLignes\DB($confSQL['sql_host'],$confSQL['sql_user'],$confSQL['sql_pass'],$confSQL['sql_db']);
+    $DB = new \CoreHelpers\DB($confSQL['sql_host'],$confSQL['sql_user'],$confSQL['sql_pass'],$confSQL['sql_db']);
 } catch (Exception $e) {
     $DB = null;
 }
 
-$Auth = new \VisuLignes\Auth($settings['settings']['Auth']);
+$Auth = new \CoreHelpers\Auth($settings['settings']['Auth']);
+$Auth->setFlashCtrl($container['flash']);

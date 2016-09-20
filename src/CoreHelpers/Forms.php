@@ -1,8 +1,8 @@
-<?php 
+<?php
 
-namespace VisuLignes;
+namespace CoreHelpers;
 
-/* 
+/*
  * Objet Formulaire
  * Il permet la création rapide et simple de formulaires, et de ses helpers.
  */
@@ -29,19 +29,19 @@ class Forms{
     		$ex = explode('[', str_replace(']', '', $fieldName));
     		$countExplode = count($ex);
     		if ($countExplode == 1) {
-    			if (isset($data[$ex[0]])) 
+    			if (isset($data[$ex[0]]))
     				$return = $data[$ex[0]];
     		}if ($countExplode == 2) {
-    			if (isset($data[$ex[0]][$ex[1]])) 
+    			if (isset($data[$ex[0]][$ex[1]]))
     				$return = $data[$ex[0]][$ex[1]];
     		}if ($countExplode == 3) {
-                if (isset($data[$ex[0]][$ex[1]][$ex[2]])) 
+                if (isset($data[$ex[0]][$ex[1]][$ex[2]]))
                     $return = $data[$ex[0]][$ex[1]][$ex[2]];
             }if ($countExplode == 4) {
-                if (isset($data[$ex[0]][$ex[1]][$ex[2]][$ex[3]])) 
+                if (isset($data[$ex[0]][$ex[1]][$ex[2]][$ex[3]]))
                     $return = $data[$ex[0]][$ex[1]][$ex[2]][$ex[3]];
             }if ($countExplode == 5) {
-                if (isset($data[$ex[0]][$ex[1]][$ex[2]][$ex[3]][$ex[4]])) 
+                if (isset($data[$ex[0]][$ex[1]][$ex[2]][$ex[3]][$ex[4]]))
                     $return = $data[$ex[0]][$ex[1]][$ex[2]][$ex[3]][$ex[4]];
             }if ($countExplode == 6) {
     			if (isset($data[$ex[0]][$ex[1]][$ex[2]][$ex[3]][$ex[4]][$ex[5]]))
@@ -83,7 +83,7 @@ class Forms{
 		}
                 return $date;
     }
-    
+
     public function validates($data){
 		$errors = array();
 		foreach ($this->validate as $k => $v) {
@@ -105,9 +105,9 @@ class Forms{
 		}
 		return false;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	/*
 <div class="form-group ">
@@ -142,7 +142,7 @@ class Forms{
         	$html .= ' '.$options['append'].' ';
 		if (isset($options['datalist'])) {
 			$options['list']="liste-".$name;
-		}	
+		}
 		$attr = ' ';
 		foreach ($options as $k => $v) { if (!in_array($k,array('class','data','type','helper','datalist','append','prepend','input-group-prepend','input-group-append','input-group-addon','selected','checkboxNoClassControl'))){
 				$attr .= $k.'="'.$v.'" ';
@@ -184,7 +184,7 @@ class Forms{
 				if (!preg_match('/span|button|input/', $options['input-group-append']))
 					$html.= '<span class="input-group-addon">'.$options['input-group-append'].'</span>';
 				else
-					$html.= $options['input-group-append'];				
+					$html.= $options['input-group-append'];
 			}elseif (isset($options['input-group-append']) && is_array($options['input-group-append'])) {
 				foreach ($options['input-group-append'] as $inkey => $inval) {
 					if (($inkey == 'button' || $inkey == 'btn') && is_array($inval)) {
@@ -258,11 +258,11 @@ class Forms{
         }
         if (!empty($options['append']))
         	$html .= ' '.$options['append'].' ';
-        
+
         if (isset($options['type'],$options['checkboxNoClassControl']) && $options['type'] == 'checkbox')
 			$html .='';
 		else
-        	$html.='</div></div>';			
+        	$html.='</div></div>';
 
 		return $html;
 	}

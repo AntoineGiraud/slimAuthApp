@@ -6,7 +6,7 @@
 $app->get('/login', function ($request, $response, $args) {
     global $Auth;
     $Auth->setFlashCtrl($this->flash);
-    $RouteHelper = new \VisuLignes\RouteHelper($this, $request, 'Login');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Login');
     $service = $RouteHelper->curPageBaseUrl. '/login';
 
     // Connexion via le CAS
@@ -22,7 +22,7 @@ $app->get('/login', function ($request, $response, $args) {
         $this->flash->addMessage('info', 'Vous êtes déjà authentifés ! <a class="btn btn-sm btn-primary" href="'.$this->router->pathFor('home').'">Retour à l\'accueil</a>');
 
     $flash = $this->flash;
-    $tokenForm = \VisuLignes\Auth::generateToken();
+    $tokenForm = \CoreHelpers\Auth::generateToken();
     $casUrl = $this->get('settings')['Auth']['casUrl']."login?service=".urlencode($service);
     return $this->renderer->render($response, 'connexion.php', compact('RouteHelper', 'flash', 'Auth', 'tokenForm', 'casUrl', $args));
 })->setName('login');
@@ -30,11 +30,10 @@ $app->get('/login', function ($request, $response, $args) {
 $app->post('/login', function ($request, $response, $args) {
     global $Auth;
     $Auth->setFlashCtrl($this->flash);
-    $RouteHelper = new \VisuLignes\RouteHelper($this, $request, 'Login');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Login');
 
     if(!empty($_POST['email']) && !empty($_POST['password'])){
         if($Auth->login($_POST)){
-        // if($Auth->login($_POST)){
             $this->flash->addMessage('success', 'Vous êtes maintenant connecté');
             return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
         } else {
@@ -51,7 +50,7 @@ $app->post('/login', function ($request, $response, $args) {
 
 $app->get('/logout', function ($request, $response, $args) {
     global $Auth, $payutcClient;
-    $RouteHelper = new \VisuLignes\RouteHelper($this, $request, 'Login');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Login');
 
     if($Auth->isLoggedUsingCas()) {
         $service = $RouteHelper->curPageBaseUrl. '/login';

@@ -38,9 +38,29 @@
           <ul class="nav navbar-nav">
             <li<?php if($RouteHelper->curPage == '/') echo ' class="active"'; ?>><a href="<?= $RouteHelper->getPathFor() ?>">Home</a></li>
             <li<?php if($RouteHelper->curPage == 'about') echo ' class="active"'; ?>><a href="<?= $RouteHelper->getPathFor('about') ?>">A propos</a></li>
+            <?php if ($Auth->memberCanAccessPages('vue_operations', 'vuePersoOperations')): ?>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Opérations <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li class="dropdown-header">Liens pour les opérations</li>
+                <?= $RouteHelper->showLinkLi('vue_operations', 'Vue opérations') ?>
+                <li role="separator" class="divider"></li>
+                <?= $RouteHelper->showLinkLi('vuePersoOperations', 'Vue perso opérations', '?param=1') ?>
+              </ul>
+            </li>
+            <?php endif ?>
           </ul>
           <?php if ($Auth->isLogged()): ?>
           <ul class="nav navbar-nav navbar-right">
+            <li><p class="navbar-text"><small><em><?= $Auth->getSessionUserField('prenom') ?></em></small></p></li>
+            <?php if ($Auth->hasRole('admin')): ?>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <?= $RouteHelper->showLinkLi('list_droits', "Liste des droits") ?>
+              </ul>
+            </li>
+            <?php endif ?>
             <li><a href="<?= $RouteHelper->getPathFor('logout') ?>">Déconnexion</a></li>
           </ul>
           <?php endif ?>
