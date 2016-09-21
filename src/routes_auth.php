@@ -62,3 +62,26 @@ $app->get('/logout', function ($request, $response, $args) {
         return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
     }
 })->setName('logout');
+
+$app->get('/auth/list_droits', function ($request, $response, $args) {
+    global $Auth, $settings;
+
+    $flash = $this->flash;
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'A propos');
+
+    $SettingsAuth = $settings['settings']['Auth'];
+
+    $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
+    $this->renderer->render($response, 'auth/list_droits.php', compact('Auth', 'RouteHelper', 'SettingsAuth', $args));
+    return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
+})->setName('auth/list_droits');
+
+$app->get('/account', function ($request, $response, $args) {
+    global $Auth, $DB;
+    $flash = $this->flash;
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'vue compte');
+
+    $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', $args));
+    $this->renderer->render($response, 'auth/account.php', compact('Auth', $args));
+    return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
+})->setName('account');

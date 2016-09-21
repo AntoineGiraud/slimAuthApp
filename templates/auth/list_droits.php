@@ -40,14 +40,14 @@
             <td>tout membre</td>
             <td>home, login, logout, about</td>
         </tr>
-    <?php foreach($SettingsAuth['allowedRoutes']['forRole'] as $k => $routes): ?>
+    <?php foreach($SettingsAuth['permissions']['forRole'] as $k => $routes): ?>
         <tr>
             <td><span class="label label-primary">groupe</span></td>
             <td><?= $k ?></td>
             <td><?= implode(', ', $routes) ?></td>
         </tr>
     <?php endforeach ?>
-    <?php foreach($SettingsAuth['allowedRoutes']['forUser'] as $k => $routes): ?>
+    <?php foreach($SettingsAuth['permissions']['forUser'] as $k => $routes): ?>
         <tr>
             <td><span class="label label-warning">user</span></td>
             <td><?= $k ?></td>

@@ -58,7 +58,8 @@
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <?= $RouteHelper->showLinkLi('admin/list_droits', "Liste des droits") ?>
+                <?= $RouteHelper->showLinkLi('account', "Information compte") ?>
+                <?= $RouteHelper->showLinkLi('auth/list_droits', "Liste des droits") ?>
               </ul>
             </li>
             <?php endif ?>

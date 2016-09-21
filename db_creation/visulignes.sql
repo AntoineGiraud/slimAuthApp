@@ -23,10 +23,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Structure de la table `administrateurs`
+-- Structure de la table `auth_admins`
 --
 
-CREATE TABLE IF NOT EXISTS `administrateurs` (
+CREATE TABLE IF NOT EXISTS `auth_admins` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
@@ -40,10 +40,10 @@ CREATE TABLE IF NOT EXISTS `administrateurs` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 --
--- Contenu de la table `administrateurs`
+-- Contenu de la table `auth_admins`
 --
 
-INSERT INTO `administrateurs` (`email`, `password`, `nom`, `prenom`, `online`, `role_id`) VALUES
+INSERT INTO `auth_admins` (`email`, `password`, `nom`, `prenom`, `online`, `role_id`) VALUES
 ('antoine.giraud@xxx', 'xxx', 'Giraud', 'Antoine', 1, 1);
 
 -- --------------------------------------------------------
@@ -70,10 +70,10 @@ INSERT INTO `configs` (`name`, `value`) VALUES
 -- --------------------------------------------------------
 
 --
--- Structure de la table `roles`
+-- Structure de la table `auth_roles`
 --
 
-CREATE TABLE IF NOT EXISTS `roles` (
+CREATE TABLE IF NOT EXISTS `auth_roles` (
   `id` int(2) NOT NULL AUTO_INCREMENT,
   `name` varchar(60) NOT NULL,
   `slug` varchar(60) NOT NULL,
@@ -82,10 +82,10 @@ CREATE TABLE IF NOT EXISTS `roles` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4 ;
 
 --
--- Contenu de la table `roles`
+-- Contenu de la table `auth_roles`
 --
 
-INSERT INTO `roles` (`id`, `name`, `slug`, `level`) VALUES
+INSERT INTO `auth_roles` (`id`, `name`, `slug`, `level`) VALUES
 (1, 'Administrateur', 'admin', 2),
 (2, 'Membre', 'member', 1),
 (3, 'Non inscrit', 'non-inscrit', 0);

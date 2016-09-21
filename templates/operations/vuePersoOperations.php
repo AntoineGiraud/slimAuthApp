@@ -7,7 +7,7 @@
 	</ul>
 </p>
 <pre>
-'allowedRoutes' => [
+'permissions' => [
     'forRole' => [
         'opearations' => [
             'vue_operations',

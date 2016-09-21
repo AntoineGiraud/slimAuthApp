@@ -35,7 +35,7 @@ return [
             //     ['level' => 1, 'name' => 'Membre', 'slug' => 'member'],
             //     ['level' => 0, 'name' => 'Non inscrit', 'slug' => 'non-inscrit']
             // ],
-            // 'allowedRoutes' => [
+            // 'permissions' => [
             //     'forRole' => [ // droits spécifiques pour un groupe d'utilisateurs donné
             //         'opearation' => [
             //             'operations/vue_operations',

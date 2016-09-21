@@ -15,9 +15,11 @@ class Auth{
         if (!empty($AuthConfig['roles'])){
             $this->sourceConfig = "conf file";
             $this->roles = $AuthConfig['roles'];
+            $this->permissions = $AuthConfig['permissions'];
         } else if(!empty($DB)){
             $this->sourceConfig = "database";
             $this->roles = $DB->query('SELECT * FROM roles');
+            $this->roles = $DB->query('SELECT * FROM permissions');
         } else
             throw new Exception("On ne va pas réussi à vous authentifier ... vérifiez la configuration du site web ...", 1);
     }
@@ -119,11 +121,11 @@ class Auth{
             return true;
         else {
             foreach ($pages as $page) {
-                if (isset($settings['settings']['Auth']['allowedRoutes']['forRole'][$this->getSessionUserField('slug')])
-                      && in_array($page, $settings['settings']['Auth']['allowedRoutes']['forRole'][$this->getSessionUserField('slug')]))
+                if (isset($settings['settings']['Auth']['permissions']['forRole'][$this->getSessionUserField('slug')])
+                      && in_array($page, $settings['settings']['Auth']['permissions']['forRole'][$this->getSessionUserField('slug')]))
                     return true;
-                else if (isset($settings['settings']['Auth']['allowedRoutes']['forUser'][$this->getSessionUserField('email')])
-                      && in_array($page, $settings['settings']['Auth']['allowedRoutes']['forUser'][$this->getSessionUserField('email')]))
+                else if (isset($settings['settings']['Auth']['permissions']['forUser'][$this->getSessionUserField('email')])
+                      && in_array($page, $settings['settings']['Auth']['permissions']['forUser'][$this->getSessionUserField('email')]))
                     return true;
             }
         }
@@ -144,7 +146,19 @@ class Auth{
      * Récupère une info utilisateur
      ***/
     function getSessionUser(){
-        return $_SESSION['Auth'];
+        $user = $_SESSION['Auth'];
+        if ($user['slug'] == 'admin')
+            $user['permissions'] = 'All granted';
+        else {
+            $user['permissions']['forRole'] = $this->permissions['forRole'][$user['slug']];
+            $user['permissions']['forUser'] = $this->permissions['forUser'][$user['mail']];
+        }
+        return $user;
+    }
+    function getUserPermissions() {
+        if (empty($_SESSION['Auth']['mail']))
+            throw new Exception("Pas d'utilisteur de connecté");
+
     }
 
     /**

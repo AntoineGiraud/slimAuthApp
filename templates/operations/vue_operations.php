@@ -2,7 +2,7 @@
 <p>Tout utilisateur faisant parti du group des oparations peut voir cette page</p>
 <p>l'usager <code>user2@entreprise</code> n'a pas accès à cette page</p>
 <pre>
-'allowedRoutes' => [
+'permissions' => [
     'forRole' => [
         'oparation' => [
             'vue_operations',
