@@ -1,11 +1,18 @@
 # Application web basique avec Authentification
 
-Voici un exemple d'application sécurisée à l'aide de deux solutions au choix :
+Ce projet est une application de base avec un système d'authentification et de gestion des droits d'accès aux pages pour des rôles ou utilisateurs données.
 
-* Soit un entre son login + mot de passe qui est confronté à une base de donnée SQL à laquelle est connecté notre application.
-* Soit on utilise un serveur CAS, un Service Central d'Authentification.
+Pour l'authentification, il est possible d'utiliser différentes méthodes :
+* Soit notre application va se charger de valider le couple d'identifiants (login / password) envoyé par l'utilisateur
+  * en les confrontant au fichier de configuration local
+  * à la base de données liée à l'appliation
+ qui sera confronté à la configuration locale du site internet
+* Soit intéroger un service tiers qui certifiera l'authentification de ce dernier:
+  * Service Central d'Authentification (CAS)
+    * *à propos du serveur CAS, il en existe surement un pour votre école par exemple (cas.icam.fr, cas.polymtl.ca). Ce CAS se chargera de faire remplir à la personne ses identifiants. Enfin, il retournera la personne vers notre application qui récupérera un jeton / ticket qu'il aura alors à faire revalider lui même aurpès de ce CAS. Ainsi la personne sera authentifiée.*
+  * Service LDAP : piste d'amélioration
 
-à propos du serveur CAS, il en existe surement un pour votre école par exemple (cas.icam.fr, cas.polymtl.ca). Ce CAS se chargera de faire remplir à la personne ses identifiants. Enfin, il retournera la personne vers notre application qui récupérera un jeton / ticket qu'il aura alors à faire revalider lui même aurpès de ce CAS. Ainsi la personne sera authentifiée.
+Bientôt un espace d'administration des utilsateurs sera créé pour modifier les droits est utilisateurs, en ajouter, en supprimer, etc. (inspiration des tutoriels de grafikart: [Gestion d'un espace membre](https://www.grafikart.fr/tutoriels/php/gestion-membre-229), [Gestion d'un espace membre (refactorisation - POO)](https://www.grafikart.fr/tutoriels/php/gestion-membre-poo-632))
 
 ## Slim
 
