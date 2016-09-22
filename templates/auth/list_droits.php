@@ -1,6 +1,38 @@
-<h1 class="page-header"><span class="glyphicon glyphicon-tower"></span> Liste des droits</h1>
+<h1 class="page-header"><span class="glyphicon glyphicon-certificate"></span> Liste des droits</h1>
 
-<h2>Liste des roles</h2>
+<table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
+    <thead>
+        <tr>
+            <th>type</th>
+            <th>nom</th>
+            <th>pages accessibles</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><span class="label label-success">role</span></td>
+            <td>admin</td>
+            <td>toutes les pages du site</td>
+        </tr>
+    <?php foreach($SettingsAuth['permissions']['forRole'] as $k => $routes): ?>
+        <tr>
+            <td><span class="label <?= $k == 'allUsers' ? 'label-info' : 'label-primary' ?>">role</span></td>
+            <td><?= $k ?></td>
+            <td><code><?= implode('</code>, <code>', $routes) ?></code></td>
+        </tr>
+    <?php endforeach ?>
+    <?php foreach($SettingsAuth['permissions']['forUser'] as $k => $routes): ?>
+        <tr>
+            <td><span class="label label-warning">user</span></td>
+            <td><?= $k ?></td>
+            <td><code><?= implode('</code>, <code>', $routes) ?></code></td>
+        </tr>
+    <?php endforeach ?>
+    </tbody>
+</table>
+
+<h1 class="page-header">Autres éléments</h1>
+<h2><span class="glyphicon glyphicon-tower"></span> Liste des roles</h2>
 <table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
     <thead>
         <tr>
@@ -20,39 +52,7 @@
     </tbody>
 </table>
 
-<h2>Liste des routes</h2>
-<table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
-    <thead>
-        <tr>
-            <th>type</th>
-            <th>nom</th>
-            <th>pages accessibles</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><span class="label label-success">groupe</span></td>
-            <td>admin</td>
-            <td>toutes les pages du site</td>
-        </tr>
-    <?php foreach($SettingsAuth['permissions']['forRole'] as $k => $routes): ?>
-        <tr>
-            <td><span class="label <?= $k == 'allUsers' ? 'label-info' : 'label-primary' ?>">groupe</span></td>
-            <td><?= $k ?></td>
-            <td><code><?= implode('</code>, <code>', $routes) ?></code></td>
-        </tr>
-    <?php endforeach ?>
-    <?php foreach($SettingsAuth['permissions']['forUser'] as $k => $routes): ?>
-        <tr>
-            <td><span class="label label-warning">user</span></td>
-            <td><?= $k ?></td>
-            <td><code><?= implode('</code>, <code>', $routes) ?></code></td>
-        </tr>
-    <?php endforeach ?>
-    </tbody>
-</table>
-
-<h2>Liste des users</h2>
+<h2><span class="glyphicon glyphicon-user"></span> Liste des utilisateurs</h2>
 <table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
     <thead>
         <tr>
@@ -73,6 +73,34 @@
             <td><?= $role['nom'] ?></td>
             <td><?= (($role['slug'] == 'admin')?'<span class="glyphicon glyphicon-king"></span>':'') . ' ' .$role['slug'] ?></td>
             <td><?= $role['level'] ?></td>
+        </tr>
+    <?php endforeach ?>
+    </tbody>
+</table>
+
+<h2><span class="glyphicon glyphicon-road"></span> Liste des routes de l'application web</h2>
+<table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>nom</th>
+            <th>url</th>
+            <th>méthodes</th>
+            <th>groupes</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach($routesSlim as $route): ?>
+        <tr>
+            <td><?= $route['identifier'] ?></td>
+            <td><?= $route['name'] ?></td>
+            <td><?= $route['pattern'] ?></td>
+            <td><?php if (!empty($route['methods'])): ?>
+                <code><?= implode('</code>, <code>', $route['methods']) ?></code>
+            <?php endif ?></td>
+            <td><?php if (!empty($route['groups'])): ?>
+                <code><?= implode('</code>, <code>', $route['groups']) ?></code>
+            <?php endif ?></td>
         </tr>
     <?php endforeach ?>
     </tbody>

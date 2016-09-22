@@ -71,8 +71,19 @@ $app->get('/auth/list_droits', function ($request, $response, $args) {
 
     $SettingsAuth = $settings['settings']['Auth'];
 
+    $routesSlim = [];
+    foreach ($this->router->getRoutes() as $key => $val) {
+        $routesSlim[] = [
+            'identifier' => $val->getIdentifier(),
+            'name' => $val->getName(),
+            'pattern' => $val->getPattern(),
+            'methods' => $val->getMethods(),
+            'groups' => $val->getGroups()
+        ];
+    }
+
     $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
-    $this->renderer->render($response, 'auth/list_droits.php', compact('Auth', 'RouteHelper', 'SettingsAuth', $args));
+    $this->renderer->render($response, 'auth/list_droits.php', compact('Auth', 'RouteHelper', 'SettingsAuth', 'routesSlim', $args));
     return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
 })->setName('auth/list_droits');
 

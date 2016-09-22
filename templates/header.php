@@ -56,17 +56,14 @@
             <li><p class="navbar-text"><small><em><?= $Auth->getSessionUserField('prenom') ?></em></small></p></li>
             <?php if ($Auth->memberCanAccessPages('account')): ?>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Compte <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Compte<?= $Auth->hasRole('admin')?'s':'' ?> <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <?= $RouteHelper->showLinkLi('account', '<span class="glyphicon glyphicon-user"></span> Mon compte') ?>
-              </ul>
-            </li>
-            <?php endif ?>
-            <?php if ($Auth->hasRole('admin')): ?>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <?= $RouteHelper->showLinkLi('auth/list_droits', '<span class="glyphicon glyphicon-tower"></span> Liste des droits') ?>
+                <?php if ($Auth->hasRole('admin')): ?>
+                  <li role="separator" class="divider"></li>
+                  <li class="dropdown-header">Administration des utilisateurs</li>
+                  <?= $RouteHelper->showLinkLi('auth/list_droits', '<span class="glyphicon glyphicon-certificate"></span> Liste des droits') ?>
+                <?php endif ?>
               </ul>
             </li>
             <?php endif ?>
