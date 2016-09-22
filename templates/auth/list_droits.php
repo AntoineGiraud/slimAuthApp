@@ -1,4 +1,4 @@
-<h1 class="page-header">Liste des droits accordés</h1>
+<h1 class="page-header"><span class="glyphicon glyphicon-tower"></span> Liste des droits</h1>
 
 <h2>Liste des roles</h2>
 <table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
@@ -35,23 +35,18 @@
             <td>admin</td>
             <td>toutes les pages du site</td>
         </tr>
-        <tr>
-            <td><span class="label label-info">groupe</span></td>
-            <td>tout membre</td>
-            <td>home, login, logout, about</td>
-        </tr>
     <?php foreach($SettingsAuth['permissions']['forRole'] as $k => $routes): ?>
         <tr>
-            <td><span class="label label-primary">groupe</span></td>
+            <td><span class="label <?= $k == 'allUsers' ? 'label-info' : 'label-primary' ?>">groupe</span></td>
             <td><?= $k ?></td>
-            <td><?= implode(', ', $routes) ?></td>
+            <td><code><?= implode('</code>, <code>', $routes) ?></code></td>
         </tr>
     <?php endforeach ?>
     <?php foreach($SettingsAuth['permissions']['forUser'] as $k => $routes): ?>
         <tr>
             <td><span class="label label-warning">user</span></td>
             <td><?= $k ?></td>
-            <td><?= implode(', ', $routes) ?></td>
+            <td><code><?= implode('</code>, <code>', $routes) ?></code></td>
         </tr>
     <?php endforeach ?>
     </tbody>

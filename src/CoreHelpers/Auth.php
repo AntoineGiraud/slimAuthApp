@@ -19,9 +19,12 @@ class Auth{
         } else if(!empty($DB)){
             $this->sourceConfig = "database";
             $this->roles = $DB->query('SELECT * FROM roles');
-            $this->roles = $DB->query('SELECT * FROM permissions');
+            $this->permissions = $DB->query('SELECT * FROM permissions');
         } else
             throw new Exception("On ne va pas réussi à vous authentifier ... vérifiez la configuration du site web ...", 1);
+        $this->basePages = !empty($Auth->permissions['forRole']['allUsers'])
+                                ? $Auth->permissions['forRole']['allUsers']
+                                : ['/', 'about', 'login', 'logout', 'account'];
     }
     function setFlashCtrl($flash){
         $this->flash = $flash;
@@ -121,6 +124,9 @@ class Auth{
             return true;
         else {
             foreach ($pages as $page) {
+                if (isset($settings['settings']['Auth']['permissions']['forRole']['allUsers'])
+                      && in_array($page, $settings['settings']['Auth']['permissions']['forRole']['allUsers']))
+                    return true;
                 if (isset($settings['settings']['Auth']['permissions']['forRole'][$this->getSessionUserField('slug')])
                       && in_array($page, $settings['settings']['Auth']['permissions']['forRole'][$this->getSessionUserField('slug')]))
                     return true;
@@ -150,9 +156,12 @@ class Auth{
         if ($user['slug'] == 'admin')
             $user['permissions'] = 'All granted';
         else {
-            $user['permissions']['forRole'] = $this->permissions['forRole'][$user['slug']];
-            $user['permissions']['forUser'] = $this->permissions['forUser'][$user['mail']];
+            $user['permissions']['forRole'] = !empty($this->permissions['forRole'][$user['slug']])?$this->permissions['forRole'][$user['slug']]:[];
+            $user['permissions']['forUser'] = !empty($this->permissions['forUser'][$user['email']])?$this->permissions['forUser'][$user['email']]:[];
+
+            $user['permissions']['forRole']['allUsers'] = !empty($this->permissions['forRole']['allUsers'])?$this->permissions['forRole']['allUsers']:[];
         }
+        unset($user['password']);
         return $user;
     }
     function getUserPermissions() {

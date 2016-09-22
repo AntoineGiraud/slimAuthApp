@@ -16,9 +16,8 @@ $app->add(function ($request, $response, $next) {
     }
     // On a vérifié que l'utilisateur est connecté !
     // On va s'assurer qu'il a le droit d'accéder aux pages
-
-    if (in_array($request->getUri()->getPath(), ['/', 'about', 'login', 'logout'])) {
-        // On ne fait rien de spécial, mais ce sont les pages de base auquel tout user a le droit
+    if (in_array($request->getUri()->getPath(), $Auth->basePages)) {
+        // On ne fait rien de spécial, mais ce sont les pages de base auquel tout user a le droit d'accèder
     } else if (!$Auth->hasRole('admin')){
         // checker les droits
         if (!$Auth->memberCanAccessPages($request->getUri()->getPath())) {

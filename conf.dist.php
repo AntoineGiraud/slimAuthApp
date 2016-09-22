@@ -37,6 +37,13 @@ return [
             // ],
             // 'permissions' => [
             //     'forRole' => [ // droits spécifiques pour un groupe d'utilisateurs donné
+            //         'allUsers' => [
+            //             'home',
+            //             'login',
+            //             'logout',
+            //             'about',
+            //             'account'
+            //         ],
             //         'opearation' => [
             //             'operations/vue_operations',
             //             'operations/vuePersoOperations'

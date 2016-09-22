@@ -54,12 +54,19 @@
           <?php if ($Auth->isLogged()): ?>
           <ul class="nav navbar-nav navbar-right">
             <li><p class="navbar-text"><small><em><?= $Auth->getSessionUserField('prenom') ?></em></small></p></li>
+            <?php if ($Auth->memberCanAccessPages('account')): ?>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Compte <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <?= $RouteHelper->showLinkLi('account', '<span class="glyphicon glyphicon-user"></span> Mon compte') ?>
+              </ul>
+            </li>
+            <?php endif ?>
             <?php if ($Auth->hasRole('admin')): ?>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <?= $RouteHelper->showLinkLi('account', "Information compte") ?>
-                <?= $RouteHelper->showLinkLi('auth/list_droits', "Liste des droits") ?>
+                <?= $RouteHelper->showLinkLi('auth/list_droits', '<span class="glyphicon glyphicon-tower"></span> Liste des droits') ?>
               </ul>
             </li>
             <?php endif ?>
