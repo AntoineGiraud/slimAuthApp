@@ -31,7 +31,7 @@ return [
             // Si vous voulez utiliser une configuration locale des roles & users, décommentez roles & users. Sinon, vous devez avoir en base de données les tables équivalentes ! confer db_creation !
             // 'roles' => [
             //     ['level' => 2, 'name' => 'Administrateur', 'slug' => 'admin'],
-            //     ['level' => 1, 'name' => 'Oparation', 'slug' => 'oparation'],
+            //     ['level' => 1, 'name' => 'Opérations', 'slug' => 'operations'],
             //     ['level' => 1, 'name' => 'Membre', 'slug' => 'member'],
             //     ['level' => 0, 'name' => 'Non inscrit', 'slug' => 'non-inscrit']
             // ],
@@ -44,7 +44,7 @@ return [
             //             'about',
             //             'account'
             //         ],
-            //         'opearation' => [
+            //         'operations' => [
             //             'operations/vue_operations',
             //             'operations/vuePersoOperations'
             //         ]
@@ -69,13 +69,13 @@ return [
             //         'level' => '2'
             //     ],
             //     [
-            //         'email' => 'user1@oparation',
+            //         'email' => 'user1@operations',
             //         'password' => 'xxx',
             //         'nom' => 'User',
             //         'prenom' => 'opérations #1',
             //         'online' => '1',
-            //         'name' => 'Oparation',
-            //         'slug' => 'oparation',
+            //         'name' => 'Opérations',
+            //         'slug' => 'operations',
             //         'level' => '1'
             //     ],
             //     [

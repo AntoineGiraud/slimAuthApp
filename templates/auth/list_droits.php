@@ -99,7 +99,9 @@
                 <code><?= implode('</code>, <code>', $route['methods']) ?></code>
             <?php endif ?></td>
             <td><?php if (!empty($route['groups'])): ?>
-                <code><?= implode('</code>, <code>', $route['groups']) ?></code>
+                <?php foreach ($route['groups'] as $group): ?>
+                    <code><?php echo $group->getPattern() ?></code>
+                <?php endforeach ?>
             <?php endif ?></td>
         </tr>
     <?php endforeach ?>
