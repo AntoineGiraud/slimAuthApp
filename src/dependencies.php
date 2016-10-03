@@ -23,6 +23,16 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
+$container['csrf'] = function ($c) {
+    $guard = new \Slim\Csrf\Guard();
+    // $guard->setFailureCallable(function ($request, $response, $next) {
+    //     $request = $request->withAttribute("csrf_status", false);
+    //     return $next($request, $response);
+    // });
+    $guard->setStorageLimit(50);
+    return $guard;
+};
+
 ///////////////////////////
 // Autre initialisations //
 ///////////////////////////

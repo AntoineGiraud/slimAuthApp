@@ -1,4 +1,5 @@
 <?php $user = $Auth->getSessionUser() ?>
+<?php // $user = \CoreHelpers\User::getUser($Auth, 'user1@operations', 'motdepasse', false) ?>
 
 <h1 class="page-header"><span class="glyphicon glyphicon-user"></span> Mon compte</h1>
 <h2>Informations personnelles</h2>
@@ -37,15 +38,16 @@
             <?php endforeach ?>
         </ul>
     </dd>
+    <dt>Pages disponibles</dt>
+    <dd>
+        <?php if ($Auth->isSuperAdmin($user)) { ?>
+            <p class="alert alert-info">En tant qu'administrateur, vous avez accès à toutes les pages.</p>
+        <?php } else if (!empty($user['permissions'])) { ?>
+            <ul>
+                <?php foreach ($user['permissions'] as $ok): ?>
+                    <li><?= $ok ?></li>
+                <?php endforeach ?>
+            </ul>
+        <?php } ?>
+    </dd>
 </dl>
-
-<?php if ($Auth->isSuperAdmin($user)) { ?>
-    <p class="alert alert-info">En tant qu'administrateur, vous avez accès à toutes les pages.</p>
-<?php } else if (!empty($user['permissions'])) { ?>
-    <h4>Pages auxquelles vous avez accès</h4>
-    <ul>
-        <?php foreach ($user['permissions'] as $ok): ?>
-            <li><?= $ok ?></li>
-        <?php endforeach ?>
-    </ul>
-<?php } ?>

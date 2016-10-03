@@ -1,3 +1,8 @@
+<dl class="dl-horizontal">
+    <dt>Configuration :</dt>
+    <dd><?= $Auth->sourceConfig == 'file' ? 'fichier' : 'base de données' ?></dd>
+</dl>
+
 <h1 class="page-header"><span class="glyphicon glyphicon-certificate"></span> Liste des droits</h1>
 
 <table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
@@ -102,7 +107,7 @@
         </tr>
     </thead>
     <tbody>
-    <?php foreach($routesSlim as $route): ?>
+    <?php foreach($Auth->routesSlim as $route): ?>
         <tr>
             <td><?= $route['identifier'] ?></td>
             <td><?= $route['name'] ?></td>

@@ -21,9 +21,9 @@ return [
 
         'confSQL' => [
             'sql_host' => "localhost",
-            'sql_db'   => "visulignes",
-            'sql_user' => "root",
-            'sql_pass' => ""
+            'sql_db'   => "database",
+            'sql_user' => "user",
+            'sql_pass' => "pswd"
         ],
 
         'Auth' => [
@@ -103,5 +103,5 @@ return [
             // ]
         ]
 
-    ]
+    ] // end ['settings']
 ];

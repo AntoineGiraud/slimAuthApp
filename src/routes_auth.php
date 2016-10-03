@@ -14,7 +14,7 @@ $app->get('/login', function ($request, $response, $args) {
         if ($Auth->loginUsingCas($request->getParam('ticket'), $service)) {
             $this->flash->addMessage('success', "Vous avez bien été authentifié avec le serveur CAS");
             return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
-        }else
+        } else
             return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('login'));
     }
 
@@ -22,10 +22,15 @@ $app->get('/login', function ($request, $response, $args) {
         $this->flash->addMessage('info', 'Vous êtes déjà authentifés ! <a class="btn btn-sm btn-primary" href="'.$this->router->pathFor('home').'">Retour à l\'accueil</a>');
 
     $flash = $this->flash;
-    $tokenForm = \CoreHelpers\Auth::generateToken();
+    $token = [
+        'nameKey' => $this->csrf->getTokenNameKey(),
+        'valueKey' => $this->csrf->getTokenValueKey()
+    ];
+    $token['name'] = $request->getAttribute($token['nameKey']);
+    $token['value'] = $request->getAttribute($token['valueKey']);
     $casUrl = $this->get('settings')['Auth']['casUrl']."login?service=".urlencode($service);
-    return $this->renderer->render($response, 'auth/connexion.php', compact('RouteHelper', 'flash', 'Auth', 'tokenForm', 'casUrl', $args));
-})->setName('login');
+    return $this->renderer->render($response, 'auth/connexion.php', compact('RouteHelper', 'flash', 'Auth', 'token', 'casUrl', $args));
+})->add($container->get('csrf'))->setName('login');
 
 $app->post('/login', function ($request, $response, $args) {
     global $Auth;
@@ -46,11 +51,11 @@ $app->post('/login', function ($request, $response, $args) {
     }
 
     return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
-});
+})->add($container->get('csrf'));
 
 $app->get('/logout', function ($request, $response, $args) {
     global $Auth, $payutcClient;
-    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Login');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'logout');
 
     if($Auth->isLoggedUsingCas()) {
         $service = $RouteHelper->curPageBaseUrl. '/login';
@@ -66,71 +71,175 @@ $app->get('/logout', function ($request, $response, $args) {
 $app->get('/account', function ($request, $response, $args) {
     global $Auth, $DB;
     $flash = $this->flash;
-    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'vue compte');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Vue compte');
 
     $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', $args));
     $this->renderer->render($response, 'auth/account.php', compact('Auth', $args));
     return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
 })->setName('account');
 
-$app->get('/auth/list_droits', function ($request, $response, $args) {
-    global $Auth, $settings, $DB;
 
-    $flash = $this->flash;
-    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'A propos');
+$app->group('/auth', function () {
+    $this->get('/list_droits', function ($request, $response, $args) {
+        global $Auth, $settings, $DB;
+        $flash = $this->flash;
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des droits');
+        $SettingsAuth = $settings['settings']['Auth'];
 
-    $SettingsAuth = $settings['settings']['Auth'];
+        if ($Auth->sourceConfig == 'file')
+            $users = $SettingsAuth['users'];
+        else
+            $users = \CoreHelpers\User::getUsersList();
 
-    if ($Auth->sourceConfig == 'file')
-        $users = $SettingsAuth['users'];
-    else {
-        $users = $DB->query('SELECT * FROM auth_users');
-        $res = $DB->query('SELECT ur.user_id, ur.role_id, u.email, r.slug
-                FROM auth_user_has_role ur
-                    LEFT JOIN auth_users u ON u.id = ur.user_id
-                    LEFT JOIN auth_roles r ON r.id = ur.role_id');
-        $usersHasRole = [];
-        foreach ($res as $userRole) {
-            if (!isset($usersHasRole[$userRole['email']]))
-                $usersHasRole[$userRole['email']] = [];
-            $usersHasRole[$userRole['email']][] = $userRole['slug'];
-        }
-        foreach ($users as $k => $u) {
-            if (!empty($usersHasRole[$u['email']]))
-                $users[$k]['roles'] = $usersHasRole[$u['email']];
-            else
-                $users[$k]['roles'] = [];
-        }
-    }
+        $Auth->setSlimRoutes($this);
 
-    $routesSlim = [];
-    foreach ($this->router->getRoutes() as $key => $val) {
-        $routesSlim[] = [
-            'identifier' => $val->getIdentifier(),
-            'name' => $val->getName(),
-            'pattern' => $val->getPattern(),
-            'methods' => $val->getMethods(),
-            'groups' => $val->getGroups()
-        ];
-    }
+        $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
+        $this->renderer->render($response, 'auth/list_droits.php', compact('Auth', 'RouteHelper', 'SettingsAuth', 'users', $args));
+        return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
+    })->setName('auth/list_droits');
+  $this->group('/users', function () {
 
-    $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
-    $this->renderer->render($response, 'auth/list_droits.php', compact('Auth', 'RouteHelper', 'SettingsAuth', 'users', 'routesSlim', $args));
-    return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
-})->setName('auth/list_droits');
-
-
-$app->group('/auth/users', function () {
     $this->get('/list', function ($request, $response, $args) {
         global $Auth, $settings, $DB;
         $flash = $this->flash;
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des utilisateurs');
 
-        $users = $DB->query('SELECT * FROM auth_users');
+        if ($Auth->sourceConfig == 'database') {
+            $users = \CoreHelpers\User::getUsersList();
+        } else {
+            $users = $SettingsAuth['users'];
+        }
+
+        $token = [
+            'nameKey' => $this->csrf->getTokenNameKey(),
+            'valueKey' => $this->csrf->getTokenValueKey()
+        ];
+        $token['name'] = $request->getAttribute($token['nameKey']);
+        $token['value'] = $request->getAttribute($token['valueKey']);
 
         $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
-        $this->renderer->render($response, 'auth/users/list.php', compact('Auth', 'RouteHelper', $args));
+        $this->renderer->render($response, 'auth/users/list.php', compact('Auth', 'RouteHelper', 'token', 'users', $args));
         return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
     })->setName('auth/users/list');
 
-});
+    $this->get('/export', function ($request, $response, $args) {
+        global $Auth, $settings, $DB;
+        $flash = $this->flash;
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des utilisateurs');
+
+        if ($Auth->sourceConfig == 'database') {
+            $users = \CoreHelpers\User::getUsersList();
+        } else {
+            $users = $SettingsAuth['users'];
+        }
+
+        $response->getBody()->write('online;email;prenom;nom;roles'."\n");
+        foreach ($users as $usr) {
+            $response->getBody()->write(
+                $usr['online'].';'.
+                $usr['email'].';'.
+                $usr['first_name'].';'.
+                $usr['last_name'].';'.
+                '['.implode(', ', $usr['roles']).']'.
+                "\n"
+            );
+        }
+        return $response->withHeader('Content-Type', 'text/csv; charset=utf-8')
+                    ->withHeader('Content-Disposition', 'text/csv; attachment; filename=export_users.csv');
+    })->setName('auth/users/export');
+
+    $this->get('/delete/{id}/{token_name}/{token_value}', function ($request, $response, $args) {
+        global $Auth, $settings, $DB;
+        $flash = $this->flash;
+        $id = (int)$args['id'];
+        $token_name = $args['token_name'];
+        $token_value = $args['token_value'];
+
+        if (!$this->csrf->validateToken($token_name, $token_value)) {
+            // var_dump($request->getAttribute('csrf_status'));
+            $this->flash->addMessage('danger', "<strong>Attention !</strong> Mauvais ticket pour supprimer cet utilisateur.");
+            return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
+        } else {
+            $userMail = \CoreHelpers\User::getMailFromId($id);
+            if (empty($userMail)) {
+                $this->flash->addMessage('warning', "Utilisateur #$id inconnu.");
+                return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
+            } else {
+                \CoreHelpers\User::deleteUser($id);
+                $this->flash->addMessage('success', "Utilisateur #$id supprimé avec succès.");
+                return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
+            }
+        }
+    })->setName('auth/users/delete');
+
+    $this->get('/add', function ($request, $response, $args) {
+        global $Auth, $settings, $DB;
+        $flash = $this->flash;
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Ajout nouvel utilisateur');
+
+        $token = [
+            'nameKey' => $this->csrf->getTokenNameKey(),
+            'valueKey' => $this->csrf->getTokenValueKey()
+        ];
+        $token['name'] = $request->getAttribute($token['nameKey']);
+        $token['value'] = $request->getAttribute($token['valueKey']);
+        $user = \CoreHelpers\User::getBlankFields();
+
+        $Auth->setSlimRoutes($this);
+
+        $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
+        $this->renderer->render($response, 'auth/users/edit.php', compact('Auth', 'RouteHelper', 'routesSlim', 'user', 'token', $args));
+        return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
+    })->setName('auth/users/add');
+
+    $this->get('/edit/{id}', function ($request, $response, $args) {
+        global $Auth, $settings, $DB;
+        $flash = $this->flash;
+        $id = (int)$args['id'];
+        $userMail = \CoreHelpers\User::getMailFromId($id);
+        if (empty($userMail)) {
+            $this->flash->addMessage('warning', "Utilisateur #$id inconnu.");
+            return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
+        }
+
+        $user = \CoreHelpers\User::getUser($Auth, $userMail, null, true);
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Editer utilisateur <small>#'.$id.'</small>');
+
+        $token = [
+            'nameKey' => $this->csrf->getTokenNameKey(),
+            'valueKey' => $this->csrf->getTokenValueKey()
+        ];
+        $token['name'] = $request->getAttribute($token['nameKey']);
+        $token['value'] = $request->getAttribute($token['valueKey']);
+
+        $Auth->setSlimRoutes($this);
+
+        $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
+        $this->renderer->render($response, 'auth/users/edit.php', compact('Auth', 'RouteHelper', 'token', 'user', $args));
+        return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
+    })->setName('auth/users/edit');
+
+    $this->post('/edit', function ($request, $response, $args) {
+        global $Auth, $settings, $DB;
+        $flash = $this->flash;
+
+        $post = $request->getParsedBody();
+        var_dump($post);
+
+        if (empty($post['id'])) {
+            $this->flash->addMessage('success', "Ajout d'un utilisateur");
+            echo "Ajout d'un utilisateur";
+        } else {
+            $userMail = \CoreHelpers\User::getMailFromId($post['id']);
+            if (empty($userMail)) {
+                $this->flash->addMessage('warning', "Utilisateur #".$post['id']." inconnu.");
+                return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
+            } else {
+                $this->flash->addMessage('success', "MAJ utilisateur ".$post['id']);
+                echo "MAJ utilisateur ".$post['id'];
+            }
+        }
+    })->setName('auth/users/edit');
+
+  });
+})->add($container->get('csrf'));

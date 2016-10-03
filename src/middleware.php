@@ -3,7 +3,7 @@
 
 // e.g: $app->add(new \Slim\Csrf\Guard);
 
-// sécuriser l'application
+// sécuriser l'application à l'aide d'une authentification
 $app->add(function ($request, $response, $next) {
     global $Auth;
 
@@ -31,3 +31,7 @@ $app->add(function ($request, $response, $next) {
 
     return $response;
 });
+
+// Sécuriser l'application contre les failles csrf
+// Si on l'ajoute ici, toutes les pages utilisant un formulaire seront coupées
+// $app->add($container->get('csrf'));

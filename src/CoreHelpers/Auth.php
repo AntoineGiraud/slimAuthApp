@@ -2,12 +2,14 @@
 
 namespace CoreHelpers;
 use \Exception;
+use \CoreHelpers\User;
 
 class Auth {
 
     private $flash;
 
     public $roles;
+    public $routesSlim;
     public $permissions;
 
     public $casUrl;
@@ -39,16 +41,17 @@ class Auth {
             $this->roles[$role['slug']]['permissions'] = (!empty($this->permissions['forRole'][$role['slug']]))? $this->permissions['forRole'][$role['slug']] : null;
         }
 
+        $this->routesSlim = null;
         // var_dump($this->sourceConfig);
         // var_dump($this->roles);
         // var_dump($this->permissions);
         // var_dump($this->permissions['forRole']);
         // var_dump($this->baseAllowedPages);
-        // $moi = $this->fetchUser('user1@operations', 'motdepasse', false);
+        // $moi = User::getUser('user1@operations', 'motdepasse', false);
         // var_dump($moi);
-        // $moi = $this->fetchUser('user2@entreprise', 'motdepasse', false);
+        // $moi = User::getUser('user2@entreprise', 'motdepasse', false);
         // var_dump($moi);
-        // $moi = $this->fetchUser('antoine.giraud@2015.icam.fr', 'motdepasse', false);
+        // $moi = User::getUser('antoine.giraud@2015.icam.fr', 'motdepasse', false);
         // var_dump($moi);
         // die();
     }
@@ -91,66 +94,10 @@ class Auth {
     /////////////////////////////
     // Partie Authentification //
     /////////////////////////////
-    /**
-     * Récupération des informations d'un utilisateur
-     * @param  String  $mail       email user
-     * @param  String  $pswd       mot de passe
-     * @param  boolean $ignorePswd est ce que l'on saute la validation du mot de passe
-     * @return [type]              retourne les informations de l'utilisateur (champs de base, roles & permissions)
-     */
-    public function fetchUser($mail, $pswd=null, $ignorePswd=false) {
-        if ($this->sourceConfig == "file") {
-            global $settings;
-            $user = null;
-            foreach ($settings['settings']['Auth']['users'] as $u) {
-                if ($u['email'] == $mail && ( $u['password'] == $pswd || password_verify($pswd, $u['password']) || $ignorePswd)) {
-                    $user = $u;
-                    break;
-                }
-            }
-            if (empty($user))
-                return null;
-            // Récupérer les rôles de l'utilisateur
-            $uRoles = $user['roles']; $user['roles'] = [];
-            foreach ($uRoles as $roleSlug)
-                $user['roles'][$roleSlug] = $this->roles[$roleSlug];
-        } else { // database
-            global $DB;
-            // id, email, password, last_login, online, first_name, last_name, created_at, updated_at
-            $user = $DB->queryFirst('SELECT a.* FROM auth_users a WHERE email = :email', ['email'=>$mail]);
-            if (empty($user) || !$ignorePswd && ($user['password'] != $pswd && !password_verify($pswd, $user['password'])))
-                return null; // On a pas le bon mot de passe
-            // auth_user_has_role: {user_id, role_id, created_at, updated_at}
-            $res = $DB->query('SELECT ur.*, r.slug role_slug
-                    FROM auth_user_has_role ur
-                        LEFT JOIN auth_roles r ON r.id = ur.role_id
-                    WHERE user_id = :user_id', ['user_id'=>$user['id']]);
-            $user['roles'] = [];
-            foreach ($res as $role)
-                $user['roles'][$role['role_slug']] = $this->roles[$role['role_slug']];
-        }
-        // Récupérer les permissions de l'utilisateur
-        $user['userPermissions'] = !empty($this->permissions['forUser'][$user['email']]) ? $this->permissions['forUser'][$user['email']] : null;
-        $user['permissions'] = [];
-        if (!empty($user['userPermissions']))
-            $user['permissions'] = $user['userPermissions']['allowed'];
-        if (!empty($user['roles'])) {
-            foreach ($user['roles'] as $role) {
-                $rolePermissions = $this->roles[$role['slug']]['permissions']['allowed'];
-                if (empty($rolePermissions))
-                    continue;
-                foreach ($rolePermissions as $ok)
-                    if (!in_array($ok, $user['permissions']))
-                        $user['permissions'][] = $ok;
-            }
-        }
-        unset($user['password']);
-        return $user;
-    }
 
     function login($d) {
         global $DB;
-        $user = $this->fetchUser($d['email'], $d['password']);
+        $user = User::getUser($this, $d['email'], $d['password']);
         if (empty($user)) {
             // $this->flash->addMessage('warning', "Vous n'avez pas les droits d'accéder au site.<br>Faites la demande aux responsables au besoin.");
             return false;
@@ -172,7 +119,7 @@ class Auth {
             $this->flash->addMessage('warning', $e->getMessage());
             return false;
         }
-        $user = (!empty($userEmail))? $this->fetchUser($userEmail, null, true) : null;
+        $user = (!empty($userEmail))? User::getUser($this, $userEmail, null, true) : null;
         if (!empty($user)) {
             if($user['online'] == 1) { // si l'utilisateur est actif dans la BDD
                 $_SESSION['Auth'] = array();
@@ -297,26 +244,44 @@ class Auth {
         return false;
     }
 
+    public function setSlimRoutes($slimApp) {
+        $this->routesSlim = [];
+        foreach ($slimApp->router->getRoutes() as $key => $val) {
+            $this->routesSlim[] = [
+                'identifier' => $val->getIdentifier(),
+                'name' => $val->getName(),
+                'pattern' => $val->getPattern(),
+                'methods' => $val->getMethods(),
+                'groups' => $val->getGroups()
+            ];
+        }
+        return $this->routesSlim;
+    }
+
     // -------------------- Security & Token functions -------------------- //
     public static function generateToken($nom = '') {
         $token = md5(uniqid(rand(147,1753), true));
-        $_SESSION['tokens'][$nom.'_token'] = $token;
-        $_SESSION['tokens'][$nom.'_token_time'] = time();
+        $_SESSION['tokens'][$nom.'_token'] = [
+            'token' => $token,
+            'time' => time()
+        ];
         return $token;
     }
 
     public static function validateToken($token, $nom = '', $temps = 600, $referer = '') {
-        if (empty($referer)) {
-            $referer = Config::get('public_url').basename($_SERVER['REQUEST_URI']);
-        }
-        if(isset($_SESSION['tokens'][$nom.'_token']) && isset($_SESSION['tokens'][$nom.'_token_time']) && !empty($token))
-            if($_SESSION['tokens'][$nom.'_token'] == $token)
-                if($_SESSION['tokens'][$nom.'_token_time'] >= (time() - $temps)) {
-                    if(!empty($_SERVER['HTTP_REFERER']) && dirname($_SERVER['HTTP_REFERER']) == dirname($referer))
+        global $DB, $settings;
+        if (empty($referer))
+            $referer = $settings['settings']['public_url'].basename($_SERVER['REQUEST_URI']);
+        if (!empty($_SESSION['tokens'][$nom.'_token']['token']) && !empty($token)) {
+            $curToken = $_SESSION['tokens'][$nom.'_token'];
+            if ($curToken['token'] == $token)
+                if ($curToken['time'] >= (time() - $temps)) {
+                    if (!empty($_SERVER['HTTP_REFERER']) && dirname($_SERVER['HTTP_REFERER']) == dirname($referer))
                         return true;
-                    elseif(empty($_SERVER['HTTP_REFERER']))
+                    else if(empty($_SERVER['HTTP_REFERER']))
                         return true;
                 }
-        return false;
+        } else
+            return false;
     }
 }

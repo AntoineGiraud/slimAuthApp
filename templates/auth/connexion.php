@@ -73,7 +73,8 @@
       <form class="form-signin<?= (isset($_GET['errorLogin']))?' has-error':''; ?>" role="form" action="<?= $RouteHelper->getPathFor('login') ?>" method="POST">
         <p style="text-align:center"><img src="<?= $RouteHelper->publicPath ?>/img/PayIcam.png" alt="Logo PolyMtl" style="max-width:200px;"></p>
         <h2 class="form-signin-heading">Identifiez-vous !</h2>
-        <input type="hidden" name="token" value="<?= $tokenForm ?>">
+        <input type="hidden" name="<?= $token['nameKey'] ?>" value="<?= $token['name'] ?>">
+        <input type="hidden" name="<?= $token['valueKey'] ?>" value="<?= $token['value'] ?>">
         <input type="email" name="email" class="form-control" placeholder="Email" required autofocus>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Se connecter</button>
