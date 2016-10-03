@@ -28,65 +28,77 @@ return [
 
         'Auth' => [
             'casUrl' => 'https://cas.icam.fr/cas/',
-            // Si vous voulez utiliser une configuration locale des roles & users, décommentez roles & users. Sinon, vous devez avoir en base de données les tables équivalentes ! confer db_creation !
+            'sourceConfig' => 'database', // database or file
+            // Pour la configuration avec une base de données, allez voir /db_creation/db_model.sql et /db_creation/db_value_sample.sql
+            'allUserRole' => 'member',
             // 'roles' => [
-            //     ['level' => 2, 'name' => 'Administrateur', 'slug' => 'admin'],
-            //     ['level' => 1, 'name' => 'Opérations', 'slug' => 'operations'],
-            //     ['level' => 1, 'name' => 'Membre', 'slug' => 'member'],
-            //     ['level' => 0, 'name' => 'Non inscrit', 'slug' => 'non-inscrit']
+            //     ['id' => 1, 'name' => 'Super administrateur', 'slug' => 'superadmin'],
+            //     ['id' => 2, 'name' => 'Tout utilisateur', 'slug' => 'member'],
+            //     ['id' => 3, 'name' => 'Opérations', 'slug' => 'operations']
             // ],
             // 'permissions' => [
             //     'forRole' => [ // droits spécifiques pour un groupe d'utilisateurs donné
-            //         'allUsers' => [
-            //             'home',
-            //             'login',
-            //             'logout',
-            //             'about',
-            //             'account'
+            //         'member' => [
+            //             'allowed' => [
+            //                 '/',
+            //                 'login',
+            //                 'logout',
+            //                 'about',
+            //                 'account'
+            //             ],
+            //             'not_allowed' => []
             //         ],
             //         'operations' => [
-            //             'operations/vue_operations',
-            //             'operations/vuePersoOperations'
+            //             'allowed' => [
+            //                 'operations/vue_operations',
+            //                 'operations/vuePersoOperations'
+            //             ],
+            //             'not_allowed' => []
             //         ]
             //         // ...
             //     ],
-            //     'forUser' => [ // droits spécifiques pour un utilisateur donné
+            //     'forUser' => [ // droits spécifiques à un utilisateur donné
             //         'user2@entreprise' => [
-            //             'operations/vuePersoOperations'
+            //             'allowed' => [
+            //                 'operations/vue_operations'
+            //             ],
+            //             'not_allowed' => []
             //         ]
             //         // ...
             //     ]
             // ],
             // 'users' => [
             //     [
-            //         'email' => 'antoine.giraud@xxx',
-            //         'password' => 'xxx',
-            //         'nom' => 'Giraud',
-            //         'prenom' => 'Antoine',
-            //         'online' => '1',
-            //         'name' => 'Administrateur',
-            //         'slug' => 'admin',
-            //         'level' => '2'
+            //         'email' => 'antoine.giraud@2015.icam.fr',
+            //         'password' => '$2y$10$vF8C9hwamm2/srzgsjI2NOlBk1zHo39g/RGLL.gcum7hB5/s5I9tq',
+            //         'last_name' => 'Giraud',
+            //         'first_name' => 'Antoine',
+            //         'online' => 1,
+            //         'roles' => ['superadmin']
             //     ],
             //     [
             //         'email' => 'user1@operations',
-            //         'password' => 'xxx',
-            //         'nom' => 'User',
-            //         'prenom' => 'opérations #1',
-            //         'online' => '1',
-            //         'name' => 'Opérations',
-            //         'slug' => 'operations',
-            //         'level' => '1'
+            //         'password' => 'motdepasse',
+            //         'last_name' => 'User',
+            //         'first_name' => 'opérations #1',
+            //         'online' => 1,
+            //         'roles' => ['operations']
             //     ],
             //     [
             //         'email' => 'user2@entreprise',
-            //         'password' => 'xxx',
-            //         'nom' => 'User',
-            //         'prenom' => 'normal #2',
-            //         'online' => '1',
-            //         'name' => 'Membre',
-            //         'slug' => 'member',
-            //         'level' => '1'
+            //         'password' => 'motdepasse',
+            //         'last_name' => 'User',
+            //         'first_name' => 'normal #2',
+            //         'online' => 1,
+            //         'roles' => []
+            //     ],
+            //     [
+            //         'email' => 'horsligne@entreprise',
+            //         'password' => 'motdepasse',
+            //         'last_name' => 'User',
+            //         'first_name' => 'horsligne',
+            //         'online' => 0,
+            //         'roles' => []
             //     ]
             // ]
         ]

@@ -6,9 +6,9 @@
     <dt>Email</dt>
     <dd><?= $user['email'] ?></dd>
     <dt>Prénom</dt>
-    <dd><?= $user['prenom'] ?></dd>
+    <dd><?= $user['first_name'] ?></dd>
     <dt>Nom</dt>
-    <dd><?= $user['nom'] ?></dd>
+    <dd><?= $user['last_name'] ?></dd>
     <dt>Etat du compte</dt>
     <dd>
         <?php if ($user['online' ]) { ?>
@@ -17,40 +17,35 @@
             <span class="label label-danger">hors ligne</span>
         <?php } ?>
     </dd>
+    <dt>Connexion <abbr title="Service Central d'Authentification">CAS</abbr></dt>
+    <dd>
+        <?php if ($Auth->isLoggedUsingCas()) { ?>
+            <span class="label label-success">Oui</span>
+        <?php } else { ?>
+            <span class="label label-danger">Non</span>
+        <?php } ?>
+    </dd>
 </dl>
 
 <h2>Permissions</h2>
-<p>
-    <strong>Rôle: </strong> <em><?= $user['name'] ?></em>
-</p>
-<?php if (is_array($user['permissions'])) { ?>
-    <h4>Pages des groupes dont vous faites partie</h4>
-    <table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
-        <thead>
-            <tr>
-                <th>type</th>
-                <th>nom</th>
-                <th>pages accessibles</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php foreach($user['permissions']['forRole'] as $k => $routes): ?>
-            <tr>
-                <td><span class="label <?= $k == 'allUsers' ? 'label-info' : 'label-primary' ?>">groupe</span></td>
-                <td><?= $k ?></td>
-                <td><code><?= implode('</code>, <code>', $routes) ?></code></td>
-            </tr>
-        <?php endforeach ?>
-        </tbody>
-    </table>
-    <h4>Autres pages authorisées pour vous</h4>
-    <?php if (!empty($user['permissions']['forUser'])){ ?>
-        <p><code><?= implode('</code>, <code>', $user['permissions']['forUser']) ?></code></p>
-    <?php } else { ?>
-        <p>Aucunes</p>
-    <?php } ?>
-<?php } else if ($Auth->hasRole('admin')) { ?>
+<dl class="dl-horizontal">
+    <dt>Rôles</dt>
+    <dd>
+        <ul>
+            <?php foreach ($user['roles'] as $role): ?>
+                <li><?= $role['name'] ?></li>
+            <?php endforeach ?>
+        </ul>
+    </dd>
+</dl>
+
+<?php if ($Auth->isSuperAdmin($user)) { ?>
     <p class="alert alert-info">En tant qu'administrateur, vous avez accès à toutes les pages.</p>
-<?php } else { ?>
-    <?= $user['permissions'] ?>
+<?php } else if (!empty($user['permissions'])) { ?>
+    <h4>Pages auxquelles vous avez accès</h4>
+    <ul>
+        <?php foreach ($user['permissions'] as $ok): ?>
+            <li><?= $ok ?></li>
+        <?php endforeach ?>
+    </ul>
 <?php } ?>

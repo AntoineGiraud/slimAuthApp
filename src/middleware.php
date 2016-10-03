@@ -16,9 +16,9 @@ $app->add(function ($request, $response, $next) {
     }
     // On a vérifié que l'utilisateur est connecté !
     // On va s'assurer qu'il a le droit d'accéder aux pages
-    if (in_array($request->getUri()->getPath(), $Auth->basePages)) {
+    if (in_array($request->getUri()->getPath(), $Auth->baseAllowedPages)) {
         // On ne fait rien de spécial, mais ce sont les pages de base auquel tout user a le droit d'accèder
-    } else if (!$Auth->hasRole('admin')){
+    } else if (!$Auth->isSuperAdmin()){
         // checker les droits
         if (!$Auth->memberCanAccessPages($request->getUri()->getPath())) {
             return $Auth->forbidden($response, $this->router, 'home');

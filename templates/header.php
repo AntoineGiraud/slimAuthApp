@@ -56,13 +56,14 @@
             <li><p class="navbar-text"><small><em><?= $Auth->getSessionUserField('prenom') ?></em></small></p></li>
             <?php if ($Auth->memberCanAccessPages('account')): ?>
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Compte<?= $Auth->hasRole('admin')?'s':'' ?> <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Compte<?= $Auth->isSuperAdmin()?'s':'' ?> <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <?= $RouteHelper->showLinkLi('account', '<span class="glyphicon glyphicon-user"></span> Mon compte') ?>
-                <?php if ($Auth->hasRole('admin')): ?>
+                <?php if ($Auth->isSuperAdmin()): ?>
                   <li role="separator" class="divider"></li>
                   <li class="dropdown-header">Administration des utilisateurs</li>
                   <?= $RouteHelper->showLinkLi('auth/list_droits', '<span class="glyphicon glyphicon-certificate"></span> Liste des droits') ?>
+                  <?= $RouteHelper->showLinkLi('auth/users/list', '<span class="glyphicon glyphicon-user"></span> Liste des utilisateurs') ?>
                 <?php endif ?>
               </ul>
             </li>

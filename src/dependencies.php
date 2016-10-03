@@ -33,6 +33,11 @@ try {
 } catch (Exception $e) {
     $DB = null;
 }
+// view renderer
+$container['DB'] = function ($c) {
+    global $DB;
+    return $DB;
+};
 
 $Auth = new \CoreHelpers\Auth($settings['settings']['Auth']);
 $Auth->setFlashCtrl($container['flash']);

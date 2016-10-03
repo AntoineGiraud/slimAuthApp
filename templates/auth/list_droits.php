@@ -6,26 +6,34 @@
             <th>type</th>
             <th>nom</th>
             <th>pages accessibles</th>
+            <th>pages interdites</th>
         </tr>
     </thead>
     <tbody>
         <tr>
             <td><span class="label label-success">role</span></td>
-            <td>admin</td>
-            <td>toutes les pages du site</td>
+            <td>superadmin</td>
+            <td colspan="2">toutes les pages du site</td>
         </tr>
-    <?php foreach($SettingsAuth['permissions']['forRole'] as $k => $routes): ?>
+    <?php foreach($Auth->permissions['forRole'] as $k => $role): ?>
         <tr>
-            <td><span class="label <?= $k == 'allUsers' ? 'label-info' : 'label-primary' ?>">role</span></td>
-            <td><?= $k ?></td>
-            <td><code><?= implode('</code>, <code>', $routes) ?></code></td>
+            <td><span class="label <?= $k == $Auth->allUserRole ? 'label-info' : 'label-primary' ?>">role</span></td>
+            <td>
+                <?= $k ?>
+                <?php if ($k == $Auth->allUserRole): ?>
+                    <small><em>Pages pour tout les utilisateurs</em></small>
+                <?php endif ?>
+            </td>
+            <td><code><?= implode('</code>, <code>', $role['allowed']) ?></code></td>
+            <td><code><?= implode('</code>, <code>', $role['not_allowed']) ?></code></td>
         </tr>
     <?php endforeach ?>
-    <?php foreach($SettingsAuth['permissions']['forUser'] as $k => $routes): ?>
+    <?php foreach($Auth->permissions['forUser'] as $k => $user): ?>
         <tr>
             <td><span class="label label-warning">user</span></td>
             <td><?= $k ?></td>
-            <td><code><?= implode('</code>, <code>', $routes) ?></code></td>
+            <td><code><?= implode('</code>, <code>', $user['allowed']) ?></code></td>
+            <td><code><?= implode('</code>, <code>', $user['not_allowed']) ?></code></td>
         </tr>
     <?php endforeach ?>
     </tbody>
@@ -35,7 +43,7 @@
 <div class="row">
     <div class="col-md-6">
         <h2><span class="glyphicon glyphicon-user"></span> Liste des utilisateurs</h2>
-        <table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
+        <table class="table table-condensed table-bordered table-hover table-striped">
             <thead>
                 <tr>
                     <th>online</th>
@@ -43,18 +51,16 @@
                     <th>prenom</th>
                     <th>nom</th>
                     <th>role</th>
-                    <th>level</th>
                 </tr>
             </thead>
             <tbody>
-            <?php foreach($SettingsAuth['users'] as $role): ?>
+            <?php foreach($users as $user): ?>
                 <tr>
-                    <td><span class="label <?= ($role['online'])?"label-success":"label-danger" ?>"><?= $role['online'] ?></span></td>
-                    <td><?= $role['email'] ?></td>
-                    <td><?= $role['prenom'] ?></td>
-                    <td><?= $role['nom'] ?></td>
-                    <td><?= (($role['slug'] == 'admin')?'<span class="glyphicon glyphicon-king"></span>':'') . ' ' .$role['slug'] ?></td>
-                    <td><?= $role['level'] ?></td>
+                    <td><span class="label <?= ($user['online'])?"label-success":"label-danger" ?>"><?= $user['online'] ?></span></td>
+                    <td><?= $user['email'] ?></td>
+                    <td><?= $user['first_name'] ?></td>
+                    <td><?= $user['last_name'] ?></td>
+                    <td><?= ((!empty($user['roles']) && in_array('superadmin', $user['roles'])) ? '<span class="glyphicon glyphicon-king"></span>' : '') . ' ' .implode(', ', $user['roles']) ?></td>
                 </tr>
             <?php endforeach ?>
             </tbody>
@@ -62,7 +68,7 @@
     </div>
     <div class="col-md-6">
         <h2><span class="glyphicon glyphicon-tower"></span> Liste des roles</h2>
-        <table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
+        <table class="table table-condensed table-bordered table-hover table-striped">
             <thead>
                 <tr>
                     <th>level</th>

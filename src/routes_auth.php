@@ -63,13 +63,45 @@ $app->get('/logout', function ($request, $response, $args) {
     }
 })->setName('logout');
 
+$app->get('/account', function ($request, $response, $args) {
+    global $Auth, $DB;
+    $flash = $this->flash;
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'vue compte');
+
+    $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', $args));
+    $this->renderer->render($response, 'auth/account.php', compact('Auth', $args));
+    return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
+})->setName('account');
+
 $app->get('/auth/list_droits', function ($request, $response, $args) {
-    global $Auth, $settings;
+    global $Auth, $settings, $DB;
 
     $flash = $this->flash;
     $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'A propos');
 
     $SettingsAuth = $settings['settings']['Auth'];
+
+    if ($Auth->sourceConfig == 'file')
+        $users = $SettingsAuth['users'];
+    else {
+        $users = $DB->query('SELECT * FROM auth_users');
+        $res = $DB->query('SELECT ur.user_id, ur.role_id, u.email, r.slug
+                FROM auth_user_has_role ur
+                    LEFT JOIN auth_users u ON u.id = ur.user_id
+                    LEFT JOIN auth_roles r ON r.id = ur.role_id');
+        $usersHasRole = [];
+        foreach ($res as $userRole) {
+            if (!isset($usersHasRole[$userRole['email']]))
+                $usersHasRole[$userRole['email']] = [];
+            $usersHasRole[$userRole['email']][] = $userRole['slug'];
+        }
+        foreach ($users as $k => $u) {
+            if (!empty($usersHasRole[$u['email']]))
+                $users[$k]['roles'] = $usersHasRole[$u['email']];
+            else
+                $users[$k]['roles'] = [];
+        }
+    }
 
     $routesSlim = [];
     foreach ($this->router->getRoutes() as $key => $val) {
@@ -83,16 +115,22 @@ $app->get('/auth/list_droits', function ($request, $response, $args) {
     }
 
     $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
-    $this->renderer->render($response, 'auth/list_droits.php', compact('Auth', 'RouteHelper', 'SettingsAuth', 'routesSlim', $args));
+    $this->renderer->render($response, 'auth/list_droits.php', compact('Auth', 'RouteHelper', 'SettingsAuth', 'users', 'routesSlim', $args));
     return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
 })->setName('auth/list_droits');
 
-$app->get('/account', function ($request, $response, $args) {
-    global $Auth, $DB;
-    $flash = $this->flash;
-    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'vue compte');
 
-    $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', $args));
-    $this->renderer->render($response, 'auth/account.php', compact('Auth', $args));
-    return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
-})->setName('account');
+$app->group('/auth/users', function () {
+    $this->get('/list', function ($request, $response, $args) {
+        global $Auth, $settings, $DB;
+        $flash = $this->flash;
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des utilisateurs');
+
+        $users = $DB->query('SELECT * FROM auth_users');
+
+        $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
+        $this->renderer->render($response, 'auth/users/list.php', compact('Auth', 'RouteHelper', $args));
+        return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
+    })->setName('auth/users/list');
+
+});
