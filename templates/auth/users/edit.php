@@ -14,7 +14,7 @@
             <legend>Informations générales :</legend>
             <div>
                 <input name="id" type="hidden" value="<?= $user['id'] ?>">
-                <div class="form-group ">
+                <div class="form-group <?= $ErrorsCtrl->hasError('email')?'has-error':'' ?>">
                     <label class="col-sm-2 control-label" for="inputemail">Email : </label>
                     <div class="col-sm-10">
                         <div class="input-group">
@@ -24,13 +24,13 @@
                         <span class="help-block"><em>Identifiant</em></span>
                     </div>
                 </div>
-                <div class="form-group ">
+                <div class="form-group <?= $ErrorsCtrl->hasError('first_name')?'has-error':'' ?>">
                     <label class="col-sm-2 control-label" for="inputprenom">Prénom : </label>
                     <div class="col-sm-10">
                         <input name="first_name" class="form-control" id="inputprenom" type="text" maxlength="55" value="<?= $user['first_name'] ?>">
                     </div>
                 </div>
-                <div class="form-group ">
+                <div class="form-group <?= $ErrorsCtrl->hasError('last_name')?'has-error':'' ?>">
                     <label class="col-sm-2 control-label" for="inputnom">Nom : </label>
                     <div class="col-sm-10">
                         <input name="last_name" class="form-control" id="inputnom" type="text" maxlength="55" value="<?= $user['last_name'] ?>">
@@ -50,9 +50,9 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="selectrole_id">Rôles : </label>
                     <div class="col-sm-10">
-                        <select name="role_id" class="form-control" id="selectrole_id" multiple>
-                            <option value="">Aucun rôle</option>
-                            <?php foreach ($Auth->roles as $role): ?>
+                        <select name="roles[]" class="form-control" id="selectrole_id" multiple>
+                            <option value="">Aucun rôle particulier</option>
+                            <?php foreach ($Auth->roles as $role): if ($role['slug'] == $Auth->allUserRole) {continue;} ?>
                                 <option <?= array_key_exists($role['slug'], $user['roles'])?'selected="selected"':'' ?> value="<?= $role['slug'] ?>"><?= $role['name'] ?></option>
                             <?php endforeach ?>
                         </select>
@@ -62,14 +62,19 @@
         </fieldset>
         <fieldset class="password clear">
             <legend>Modifier son mot de passe :</legend>
+            <?php if ($ErrorsCtrl->hasError('password')): ?>
+                <div class="col-sm-offset-2 col-sm-10">
+                    <p class="alert alert-warning"><?= $ErrorsCtrl->errors['password']['msg'] ?></p>
+                </div>
+            <?php endif ?>
             <div class="pass">
-                <div class="form-group ">
+                <div class="form-group <?= $ErrorsCtrl->hasError('password')?'has-error':'' ?>">
                     <label class="col-sm-2 control-label" for="inputpass_new">Nouveau mot de passe :</label>
                     <div class="col-sm-10">
                         <input name="pass_new" class="form-control" id="inputpass_new" type="password" maxlength="55" value="">
                     </div>
                 </div>
-                <div class="form-group ">
+                <div class="form-group <?= $ErrorsCtrl->hasError('password')?'has-error':'' ?>">
                     <label class="col-sm-2 control-label" for="inputpass_new2">Confirmez le :</label>
                     <div class="col-sm-10">
                         <input name="pass_new2" class="form-control" id="inputpass_new2" type="password" maxlength="55" value="">
@@ -86,3 +91,9 @@
         </div>
     </div>
 </form>
+
+<?php var_dump($user) ?>
+<?php var_dump($ErrorsCtrl) ?>
+<?php var_dump($_SESSION) ?>
+
+<?php var_dump(!filter_var('antoine.giraud@2015.icam.fr', FILTER_VALIDATE_EMAIL)) ?>

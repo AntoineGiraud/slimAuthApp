@@ -89,7 +89,7 @@ class Forms{
 		foreach ($this->validate as $k => $v) {
 			if (!isset($data[$k])) {
 				$errors[$k] = $v['message'];
-			}else {
+			} else {
 				if ($v['rule'] == 'notEmpty') {
 					if (empty($data[$k])) {
 						$errors[$k] = $v['message'];

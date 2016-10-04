@@ -7,12 +7,12 @@ namespace CoreHelpers;
 */
 class User {
 
-	function __construct() {
+    function __construct() {
 
-	}
+    }
 
-    public static function getBlankFields() {
-        return [
+    public static function getBlankFields($val="pasDeValeurParDefaut") {
+        $retour = [
             'id' => '',
             'email' => '',
             'last_login' => '',
@@ -25,6 +25,10 @@ class User {
             'userPermissions' => '',
             'permissions' => []
         ];
+        if ($val != "pasDeValeurParDefaut")
+            foreach ($retour as $key => $value)
+                $retour[$key] = $val;
+        return $retour;
     }
 
     public static function deleteUser($id) {
@@ -32,7 +36,7 @@ class User {
         $users = $DB->query('DELETE FROM auth_users WHERE id = :id', ['id' => $id]);
     }
 
-	public static function getUsersList() {
+    public static function getUsersList() {
         global $DB;
         $users = $DB->query('SELECT * FROM auth_users');
         $res = $DB->query('SELECT ur.user_id, ur.role_id, u.email, r.slug
@@ -55,34 +59,36 @@ class User {
     }
 
     public static function getMailFromId($id) {
-		global $DB;
+        global $DB;
         $res = $DB->queryFirst('SELECT email FROM auth_users WHERE id = :id', ['id'=>$id]);
         return !empty($res)? current($res) : null;
     }
+    public static function emailExist($email) {
+        global $DB;
+        $res = $DB->queryFirst('SELECT email FROM auth_users WHERE email = :email', ['email'=>$email]);
+        return !empty($res)? true : false;
+    }
 
-	/**
+    /**
      * Récupération des informations d'un utilisateur
      * @param  String  $mail       email user
      * @param  String  $pswd       mot de passe
      * @param  boolean $ignorePswd est ce que l'on saute la validation du mot de passe
      * @return [type]              retourne les informations de l'utilisateur (champs de base, roles & permissions)
      */
-	public static function getUser($Auth, $mail, $pswd=null, $ignorePswd=false) {
-		if ($Auth->sourceConfig == "file") {
+    public static function getUser($Auth, $mail, $pswd=null, $ignorePswd=false, $removePswd=true) {
+        if ($Auth->sourceConfig == "file") {
             global $settings;
             $user = null;
             foreach ($settings['settings']['Auth']['users'] as $u) {
                 if ($u['email'] == $mail && ( $u['password'] == $pswd || password_verify($pswd, $u['password']) || $ignorePswd)) {
                     $user = $u;
+                    $user['roles'] = $Auth->getRoles($user['roles']);
                     break;
                 }
             }
             if (empty($user))
                 return null;
-            // Récupérer les rôles de l'utilisateur
-            $uRoles = $user['roles']; $user['roles'] = [];
-            foreach ($uRoles as $roleSlug)
-                $user['roles'][$roleSlug] = $Auth->roles[$roleSlug];
         } else { // database
             global $DB;
             // id, email, password, last_login, online, first_name, last_name, created_at, updated_at
@@ -105,7 +111,7 @@ class User {
             $user['permissions'] = $user['userPermissions']['allowed'];
         if (!empty($user['roles'])) {
             foreach ($user['roles'] as $role) {
-                $rolePermissions = $Auth->roles[$role['slug']]['permissions']['allowed'];
+                $rolePermissions = $role['permissions']['allowed'];
                 if (empty($rolePermissions))
                     continue;
                 foreach ($rolePermissions as $ok)
@@ -113,7 +119,8 @@ class User {
                         $user['permissions'][] = $ok;
             }
         }
-        unset($user['password']);
+        if ($removePswd)
+            unset($user['password']);
         return $user;
-	}
+    }
 }

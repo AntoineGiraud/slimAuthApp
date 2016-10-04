@@ -185,13 +185,23 @@ $app->group('/auth', function () {
         $token['value'] = $request->getAttribute($token['valueKey']);
         $user = \CoreHelpers\User::getBlankFields();
 
+        $ErrorsCtrl = new \CoreHelpers\ErrorsController([]);
+        if (!empty($_SESSION['errorForm'])) {
+            $ErrorsCtrl = $_SESSION['errorForm']['Errors'];
+            $user = array_merge($user, $_SESSION['errorForm']['curForm']);
+            unset($_SESSION['errorForm']);
+        }
+
         $Auth->setSlimRoutes($this);
 
         $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
-        $this->renderer->render($response, 'auth/users/edit.php', compact('Auth', 'RouteHelper', 'routesSlim', 'user', 'token', $args));
+        $this->renderer->render($response, 'auth/users/edit.php', compact('Auth', 'RouteHelper', 'routesSlim', 'user', 'ErrorsCtrl', 'token', $args));
         return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
     })->setName('auth/users/add');
 
+    $this->get('/edit', function ($request, $response, $args) {
+        return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
+    });
     $this->get('/edit/{id}', function ($request, $response, $args) {
         global $Auth, $settings, $DB;
         $flash = $this->flash;
@@ -212,34 +222,88 @@ $app->group('/auth', function () {
         $token['name'] = $request->getAttribute($token['nameKey']);
         $token['value'] = $request->getAttribute($token['valueKey']);
 
+        $ErrorsCtrl = new \CoreHelpers\ErrorsController([]);
+        if (!empty($_SESSION['errorForm'])) {
+            $ErrorsCtrl = $_SESSION['errorForm']['Errors'];
+            $user = array_merge($user, $_SESSION['errorForm']['curForm']);
+            unset($_SESSION['errorForm']);
+        }
+
         $Auth->setSlimRoutes($this);
 
         $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
-        $this->renderer->render($response, 'auth/users/edit.php', compact('Auth', 'RouteHelper', 'token', 'user', $args));
+        $this->renderer->render($response, 'auth/users/edit.php', compact('Auth', 'RouteHelper', 'token', 'ErrorsCtrl', 'user', $args));
         return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
     })->setName('auth/users/edit');
 
     $this->post('/edit', function ($request, $response, $args) {
         global $Auth, $settings, $DB;
         $flash = $this->flash;
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Edition utilisateur');
 
         $post = $request->getParsedBody();
         var_dump($post);
 
-        if (empty($post['id'])) {
-            $this->flash->addMessage('success', "Ajout d'un utilisateur");
-            echo "Ajout d'un utilisateur";
+        $userMail = (empty($post['id'])) ? '' : \CoreHelpers\User::getMailFromId($post['id']);
+        if (!empty($post['id']) && empty($userMail)) {
+            $this->flash->addMessage('warning', "Utilisateur #".$post['id']." inconnu.");
+            return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
+        }
+
+        // Validation formulaire (ajoute ou mise à jour)
+        $userFields = array_keys(\CoreHelpers\User::getBlankFields());
+        if (!empty($userMail)) {
+            $curUser = \CoreHelpers\User::getUser($Auth, $userMail, null, true, false);
+            $pswdAncienValidate = ['field'=>null, 'hash'=>$curUser['password']];
         } else {
-            $userMail = \CoreHelpers\User::getMailFromId($post['id']);
-            if (empty($userMail)) {
-                $this->flash->addMessage('warning', "Utilisateur #".$post['id']." inconnu.");
-                return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
-            } else {
-                $this->flash->addMessage('success', "MAJ utilisateur ".$post['id']);
-                echo "MAJ utilisateur ".$post['id'];
+            $curUser = null;
+            $pswdAncienValidate = null;
+        }
+        $validate = [
+            'first_name'=> array('rule'=>'notEmpty', 'msg' => 'Entrez votre prénom'),
+            'last_name' => array('rule'=>'notEmpty', 'msg' => 'Entrez votre nom'),
+            'email'     => array('rule'=>'email',    'msg' => 'Entrez un email valide'),
+            'password'  => array('rule'=>'password', 'msg' => 'Les mots de passe ne concordent pas !',
+                                 'fields'=>['nouveau'=>'pass_new', 'confirmation'=>'pass_new2', 'ancien'=>$pswdAncienValidate],
+                                 'canBeSkiped'=>!empty($post['id']))
+        ];
+
+        $ErrorsCtrl = new \CoreHelpers\ErrorsController($validate);
+        if ($ErrorsCtrl->validate($post)) {
+            if (!empty($userMail) && $userMail != $post['email'] || empty($userMail)) {
+                // Si jamais on a un ajout de user: on check le mail
+                // Si jamais on une MAJ de user, il faut checker si le mail est modifié que ce dernier n'existe pas déjà
+                if (\CoreHelpers\User::emailExist($post['email']))
+                    $ErrorsCtrl->addError('email', 'Email déjà existant');
             }
         }
-    })->setName('auth/users/edit');
+
+        if ($ErrorsCtrl->hasError) { // On a trouvé une erreur, on redirige !
+            $_SESSION['errorForm'] = ['Errors' => $ErrorsCtrl, 'curForm' => $post];
+            if (empty($post['id'])) { // Si on était en train d'ajouter une personne
+                $this->flash->addMessage('warning', $ErrorsCtrl->hasError." erreur".($ErrorsCtrl->hasError==1?'':'s')." dans le formlaire");
+                return $response->withHeader('Location', $RouteHelper->getPathFor('auth/users/add'));
+            } else {
+                $this->flash->addMessage('warning', $ErrorsCtrl->hasError." erreur".($ErrorsCtrl->hasError==1?'':'s')." dans le formulaire");
+                return $response->withHeader('Location', $RouteHelper->getPathFor('auth/users/edit').'/'.$post['id']);
+            }
+        } else { // On a effectué toutes les vérifications
+            if (empty($post['id'])) {
+                $msg = "Ajout d'un utilisateur: ".$post['email'].' - '.json_encode($post['roles']);
+                // \CoreHelpers\User::insert($post);
+                $this->logger->addInfo($msg);
+                $this->flash->addMessage('success', $msg);
+                echo $msg;
+            } else {
+                $msg = "MAJ utilisateur #".$post['id']." : ".$post['email'].' - '.json_encode($post['roles']);
+                // \CoreHelpers\User::update($post);
+                $this->logger->addInfo($msg);
+                $this->flash->addMessage('success', $msg);
+                echo $msg;
+            }
+        }
+
+    })->setName('auth/users/commit');
 
   });
 })->add($container->get('csrf'));
