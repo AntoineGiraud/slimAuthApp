@@ -103,13 +103,7 @@ $app->group('/auth', function () {
         $SettingsAuth = $settings['settings']['Auth'];
 
         $users = $Auth->getUsers();
-
-        $token = [
-            'nameKey' => $this->csrf->getTokenNameKey(),
-            'valueKey' => $this->csrf->getTokenValueKey()
-        ];
-        $token['name'] = $request->getAttribute($token['nameKey']);
-        $token['value'] = $request->getAttribute($token['valueKey']);
+        $token = $Auth->getTokenSlimCsrf($this, $request);
 
         $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
         $this->renderer->render($response, 'auth/users/list.php', compact('Auth', 'RouteHelper', 'token', 'users', $args));
@@ -121,11 +115,7 @@ $app->group('/auth', function () {
         $flash = $this->flash;
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des utilisateurs');
 
-        if ($Auth->sourceConfig == 'database') {
-            $users = \CoreHelpers\User::getUsersList();
-        } else {
-            $users = $SettingsAuth['users'];
-        }
+        $users = $Auth->getUsers();
 
         $response->getBody()->write('online;email;prenom;nom;roles'."\n");
         foreach ($users as $usr) {
@@ -134,7 +124,7 @@ $app->group('/auth', function () {
                 $usr['email'].';'.
                 $usr['first_name'].';'.
                 $usr['last_name'].';'.
-                '['.implode(', ', $usr['roles']).']'.
+                '['.implode(', ', array_keys($usr['roles'])).']'.
                 "\n"
             );
         }
@@ -144,7 +134,8 @@ $app->group('/auth', function () {
 
     $this->get('/delete/{id}/{token_name}/{token_value}', function ($request, $response, $args) {
         global $Auth, $settings, $DB;
-        $flash = $this->flash;
+        if ($Auth->sourceConfig != 'database')
+            return $Auth->forbidden($response, $this->router, 'auth/users/list', "Il n'est pas possible d'éditer les membres avec une configuration fichier. Migrez vers une configuration base de données.", 'danger');
         $id = (int)$args['id'];
         $token_name = $args['token_name'];
         $token_value = $args['token_value'];
@@ -170,16 +161,12 @@ $app->group('/auth', function () {
 
     $this->get('/add', function ($request, $response, $args) {
         global $Auth, $settings, $DB;
+
         $flash = $this->flash;
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Ajout nouvel utilisateur');
 
-        $token = [
-            'nameKey' => $this->csrf->getTokenNameKey(),
-            'valueKey' => $this->csrf->getTokenValueKey()
-        ];
-        $token['name'] = $request->getAttribute($token['nameKey']);
-        $token['value'] = $request->getAttribute($token['valueKey']);
         $user = \CoreHelpers\User::getBlankFields();
+        $token = $Auth->getTokenSlimCsrf($this, $request);
 
         $ErrorsCtrl = new \CoreHelpers\ErrorsController([]);
         if (!empty($_SESSION['errorForm'])) {
@@ -200,6 +187,9 @@ $app->group('/auth', function () {
     });
     $this->get('/edit/{id}', function ($request, $response, $args) {
         global $Auth, $settings, $DB;
+        if ($Auth->sourceConfig != 'database')
+            return $Auth->forbidden($response, $this->router, 'auth/users/list', "Il n'est pas possible d'éditer les membres avec une configuration fichier. Migrez vers une configuration base de données.", 'danger');
+
         $flash = $this->flash;
         $id = (int)$args['id'];
         $userMail = \CoreHelpers\User::getMailFromId($id);
@@ -211,12 +201,7 @@ $app->group('/auth', function () {
         $user = \CoreHelpers\User::getUser($Auth, $userMail, null, true);
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Editer utilisateur <small>#'.$id.'</small>');
 
-        $token = [
-            'nameKey' => $this->csrf->getTokenNameKey(),
-            'valueKey' => $this->csrf->getTokenValueKey()
-        ];
-        $token['name'] = $request->getAttribute($token['nameKey']);
-        $token['value'] = $request->getAttribute($token['valueKey']);
+        $token = $Auth->getTokenSlimCsrf($this, $request);
 
         $ErrorsCtrl = new \CoreHelpers\ErrorsController([]);
         if (!empty($_SESSION['errorForm'])) {
@@ -266,6 +251,9 @@ $app->group('/auth', function () {
 
         $ErrorsCtrl = new \CoreHelpers\ErrorsController($validate);
         if ($ErrorsCtrl->validate($post)) {
+            if ($Auth->sourceConfig != 'database')
+                // On a laissé faire les autres vérifications, mais si jamais on a pas accès à la bdd, on coupe !!
+                return $Auth->forbidden($response, $this->router, 'auth/users/list', "Il n'est pas possible d'éditer les membres avec une configuration fichier. Migrez vers une configuration base de données.", 'danger');
             if (!empty($userMail) && $userMail != $post['email'] || empty($userMail)) {
                 // Si jamais on a un ajout de user: on check le mail
                 // Si jamais on une MAJ de user, il faut checker si le mail est modifié que ce dernier n'existe pas déjà

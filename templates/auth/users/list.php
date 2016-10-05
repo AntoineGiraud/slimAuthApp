@@ -6,6 +6,10 @@
   </div>
 </h1>
 
+<?php if ($Auth->sourceConfig != 'database'): ?>
+    <p class="alert alert-warning"> Il n'est pas possible d'éditer les membres avec une configuration fichier. Migrez vers une configuration base de données.</p>
+<?php endif ?>
+
 <table class="table table-condensed table-bordered table-hover table-striped">
     <thead>
         <tr>
@@ -26,10 +30,10 @@
             <td><?= $user['last_name'] ?></td>
             <td><?= ((!empty($user['roles']) && in_array('superadmin', $user['roles'])) ? '<span class="glyphicon glyphicon-king"></span>' : '') . ' ' .implode(', ', $user['roles']) ?></td>
             <td>
-            	<div class="pull-right">
-			      <a href="<?= $RouteHelper->getPathFor('auth/users/edit/'.$user['id']) ?>" title="Editer l'utilisateur #<?= $user['id']; ?>"><i class="glyphicon glyphicon-pencil"></i></a>
-			      <a href="<?= $RouteHelper->getPathFor('auth/users/delete/'.$user['id'].'/'.$token['name'].'/'.$token['value']) ?>" title="Supprimer l'utilisateur #<?= $user['id']; ?>" onclick="return confirm('Voulez-vous vraiment supprimer ce admin ?');"><i class="glyphicon glyphicon-trash"></i></a>
-			    </div>
+                <div class="pull-right">
+                  <a href="<?= $RouteHelper->getPathFor('auth/users/edit/'.$user['id']) ?>" title="Editer l'utilisateur #<?= $user['id']; ?>"><i class="glyphicon glyphicon-pencil"></i></a>
+                  <a href="<?= $RouteHelper->getPathFor('auth/users/delete/'.$user['id'].'/'.$token['name'].'/'.$token['value']) ?>" title="Supprimer l'utilisateur #<?= $user['id']; ?>" onclick="return confirm('Voulez-vous vraiment supprimer ce admin ?');"><i class="glyphicon glyphicon-trash"></i></a>
+                </div>
             </td>
         </tr>
     <?php endforeach ?>

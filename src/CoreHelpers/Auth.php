@@ -162,8 +162,10 @@ class Auth {
         return !empty($_SESSION['Auth'])? $_SESSION['Auth'] : null;
     }
     /** Redirige un utilisateur */
-    function forbidden($response, $router, $pageRenvoi="home") {
-        $this->flash->addMessage('danger', "<strong>Attention !</strong> Vous n'avez pas les droits pour accéder à cette page.");
+    function forbidden($response, $router, $pageRenvoi="home", $msg='', $cat='danger') {
+        if (empty($msg))
+            $msg = "<strong>Attention !</strong> Vous n'avez pas les droits pour accéder à cette page.";
+        $this->flash->addMessage($cat, $msg);
         return $response->withStatus(401)->withHeader('Location', $router->pathFor($pageRenvoi));
     }
 
@@ -285,6 +287,16 @@ class Auth {
     }
 
     // -------------------- Security & Token functions -------------------- //
+    public function getTokenSlimCsrf($app, $request) {
+        $token = [
+            'nameKey' => $app->csrf->getTokenNameKey(),
+            'valueKey' => $app->csrf->getTokenValueKey()
+        ];
+        $token['name'] = $request->getAttribute($token['nameKey']);
+        $token['value'] = $request->getAttribute($token['valueKey']);
+        return $token;
+    }
+
     public static function generateToken($nom = '') {
         $token = md5(uniqid(rand(147,1753), true));
         $_SESSION['tokens'][$nom.'_token'] = [

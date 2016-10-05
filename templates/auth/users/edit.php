@@ -1,3 +1,9 @@
+<?php if ($Auth->sourceConfig != 'database'): ?>
+    <p class="alert alert-warning">
+        Il n'est pas possible d'éditer les membres avec une configuration fichier. Migrez vers une configuration base de données.
+    </p>
+<?php endif ?>
+
 <h1 class="page-header clearfix">
     <div class="pull-left"><span class="glyphicon glyphicon-tower"></span> <?= $RouteHelper->pageName ?> </div>
     <div class="pull-right">
