@@ -124,7 +124,7 @@ $app->group('/auth', function () {
                 $usr['email'].';'.
                 $usr['first_name'].';'.
                 $usr['last_name'].';'.
-                '['.implode(', ', array_keys($usr['roles'])).']'.
+                '['.implode(', ', $usr['roles']).']'.
                 "\n"
             );
         }
