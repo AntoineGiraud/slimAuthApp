@@ -1,7 +1,6 @@
 <?php
 
 namespace CoreHelpers;
-use \Exception;
 use \CoreHelpers\User;
 
 class Auth {
@@ -30,7 +29,7 @@ class Auth {
             $roles = $DB->query('SELECT * FROM auth_roles');
             $this->permissions = self::loadPermissionsFromDB();
         } else
-            throw new Exception("On ne va pas réussi à vous authentifier ... vérifiez la configuration du site web ...", 1);
+            throw new \Exception("Base de données inaccessible, vérifiez la configuration du site web ...", 1);
         $this->baseAllowedPages = !empty($Auth->permissions['forRole'][$this->allUserRole])
                                 ? $Auth->permissions['forRole'][$this->allUserRole]['allowed']
                                 : ['/', 'about', 'login', 'logout', 'account'];

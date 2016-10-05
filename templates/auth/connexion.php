@@ -71,7 +71,7 @@
       <?php endforeach ?>
 
       <form class="form-signin<?= (isset($_GET['errorLogin']))?' has-error':''; ?>" role="form" action="<?= $RouteHelper->getPathFor('login') ?>" method="POST">
-        <p style="text-align:center"><img src="<?= $RouteHelper->publicPath ?>/img/PayIcam.png" alt="Logo PolyMtl" style="max-width:200px;"></p>
+        <p style="text-align:center"><img src="<?= $RouteHelper->publicPath ?>/img/logo.png" style="max-width:200px;"></p>
         <h2 class="form-signin-heading">Identifiez-vous !</h2>
         <input type="hidden" name="<?= $token['nameKey'] ?>" value="<?= $token['name'] ?>">
         <input type="hidden" name="<?= $token['valueKey'] ?>" value="<?= $token['value'] ?>">
