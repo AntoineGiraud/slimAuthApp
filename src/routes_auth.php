@@ -86,10 +86,7 @@ $app->group('/auth', function () {
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des droits');
         $SettingsAuth = $settings['settings']['Auth'];
 
-        if ($Auth->sourceConfig == 'file')
-            $users = $SettingsAuth['users'];
-        else
-            $users = \CoreHelpers\User::getUsersList();
+        $users = $Auth->getUsers();
 
         $Auth->setSlimRoutes($this);
 
@@ -103,12 +100,9 @@ $app->group('/auth', function () {
         global $Auth, $settings, $DB;
         $flash = $this->flash;
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des utilisateurs');
+        $SettingsAuth = $settings['settings']['Auth'];
 
-        if ($Auth->sourceConfig == 'database') {
-            $users = \CoreHelpers\User::getUsersList();
-        } else {
-            $users = $SettingsAuth['users'];
-        }
+        $users = $Auth->getUsers();
 
         $token = [
             'nameKey' => $this->csrf->getTokenNameKey(),

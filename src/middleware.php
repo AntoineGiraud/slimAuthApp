@@ -33,5 +33,5 @@ $app->add(function ($request, $response, $next) {
 });
 
 // Sécuriser l'application contre les failles csrf
-// Si on l'ajoute ici, toutes les pages utilisant un formulaire seront coupées
+// Si on l'ajoute ici, toutes les pages utilisant un formulaire seront coupées si les jetons ne sont pas bon ou pas envoyés
 // $app->add($container->get('csrf'));

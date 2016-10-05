@@ -58,6 +58,18 @@ class Auth {
     function setFlashCtrl($flash) {
         $this->flash = $flash;
     }
+    public function getUsers() {
+        global $settings;
+        if ($this->sourceConfig == 'database') {
+            return \CoreHelpers\User::getUsersList();
+        } else {
+            $users = $settings['settings']['Auth']['users'];
+            foreach ($users as $k => $u)
+                if (!isset($u['id']))
+                    $users[$k]['id'] = $k;
+            return $users;
+        }
+    }
 
     /**
      * fonction pour charger les permissions comme dans le fichier de configuration
