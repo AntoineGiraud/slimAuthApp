@@ -47,7 +47,12 @@
 <h1 class="page-header">Autres éléments</h1>
 <div class="row">
     <div class="col-md-8">
-        <h2><span class="glyphicon glyphicon-user"></span> Liste des utilisateurs</h2>
+        <h2>
+          <span class="glyphicon glyphicon-user"></span> Liste des utilisateurs
+          <div class="pull-right">
+            <a href="<?= $RouteHelper->getPathFor('auth/users/list') ?>" class="btn btn-primary" onlick="">Liste</a>
+          </div>
+        </h2>
         <table class="table table-condensed table-bordered table-hover table-striped">
             <thead>
                 <tr>
@@ -91,7 +96,6 @@
         </table>
     </div>
 </div>
-
 
 <h2><span class="glyphicon glyphicon-road"></span> Liste des routes de l'application web</h2>
 <table class="table table-condensed table-bordered table-hover table-striped table-nonfluid">
