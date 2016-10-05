@@ -83,7 +83,7 @@
         <?php endif; ?>
       </form>
         <hr>
-        <p style="text-align:center"><em>Page d'authentification vers le portail VisuLignes</em></p>
+        <p style="text-align:center"><em>Page d'authentification vers le portail <strong><?= $RouteHelper->webSiteTitle ?></strong></em></p>
     </div>
     <script src="<?= $RouteHelper->publicPath ?>js/bootstrap.min.js"></script>
   </body>
