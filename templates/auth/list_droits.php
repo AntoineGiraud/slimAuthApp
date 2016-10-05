@@ -46,7 +46,7 @@
 
 <h1 class="page-header">Autres éléments</h1>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-8">
         <h2><span class="glyphicon glyphicon-user"></span> Liste des utilisateurs</h2>
         <table class="table table-condensed table-bordered table-hover table-striped">
             <thead>
@@ -71,22 +71,20 @@
             </tbody>
         </table>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <h2><span class="glyphicon glyphicon-tower"></span> Liste des roles</h2>
         <table class="table table-condensed table-bordered table-hover table-striped">
             <thead>
                 <tr>
-                    <th>level</th>
                     <th>name</th>
                     <th>slug</th>
                 </tr>
             </thead>
             <tbody>
-            <?php foreach($SettingsAuth['roles'] as $role): ?>
+            <?php foreach($Auth->getRoles() as $role): ?>
                 <tr>
-                    <?php foreach ($role as $k => $v): ?>
-                        <td><?= $v ?></td>
-                    <?php endforeach ?>
+                    <td><?= $role['name'] ?></td>
+                    <td><?= $role['slug'] ?></td>
                 </tr>
             <?php endforeach ?>
             </tbody>

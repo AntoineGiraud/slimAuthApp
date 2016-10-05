@@ -84,14 +84,13 @@ $app->group('/auth', function () {
         global $Auth, $settings, $DB;
         $flash = $this->flash;
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des droits');
-        $SettingsAuth = $settings['settings']['Auth'];
 
         $users = $Auth->getUsers();
 
         $Auth->setSlimRoutes($this);
 
         $this->renderer->render($response, 'header.php', compact('Auth', 'flash', 'RouteHelper', 'settings', $args));
-        $this->renderer->render($response, 'auth/list_droits.php', compact('Auth', 'RouteHelper', 'SettingsAuth', 'users', $args));
+        $this->renderer->render($response, 'auth/list_droits.php', compact('Auth', 'RouteHelper', 'users', $args));
         return $this->renderer->render($response, 'footer.php', compact('Auth', 'RouteHelper', $args));
     })->setName('auth/list_droits');
   $this->group('/users', function () {
@@ -100,7 +99,6 @@ $app->group('/auth', function () {
         global $Auth, $settings, $DB;
         $flash = $this->flash;
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des utilisateurs');
-        $SettingsAuth = $settings['settings']['Auth'];
 
         $users = $Auth->getUsers();
         $token = $Auth->getTokenSlimCsrf($this, $request);
