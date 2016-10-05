@@ -163,7 +163,7 @@ class User {
         }
         // Récupérer les permissions de l'utilisateur
         $user['userPermissions'] = !empty($Auth->permissions['forUser'][$user['email']]) ? $Auth->permissions['forUser'][$user['email']] : null;
-        $user['permissions'] = [];
+        $user['permissions'] = $Auth->baseAllowedPages;
         if (!empty($user['userPermissions']))
             $user['permissions'] = $user['userPermissions']['allowed'];
         if (!empty($user['roles'])) {
