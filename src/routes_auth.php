@@ -166,7 +166,9 @@ $app->group('/auth', function () {
                 return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
             } else {
                 \CoreHelpers\User::deleteUser($id);
-                $this->flash->addMessage('success', "Utilisateur #$id supprimé avec succès.");
+                $msg = "Suppression utilisateur #".$v." : ".$userMail;
+                $this->logger->addInfo($msg);
+                $this->flash->addMessage('success', $msg);
                 return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
             }
         }
@@ -251,7 +253,7 @@ $app->group('/auth', function () {
         }
 
         // Validation formulaire (ajoute ou mise à jour)
-        $userFields = array_keys(\CoreHelpers\User::getBlankFields());
+        // $userFields = array_keys(\CoreHelpers\User::getBlankFields());
         if (!empty($userMail)) {
             $curUser = \CoreHelpers\User::getUser($Auth, $userMail, null, true, false);
             $pswdAncienValidate = ['field'=>null, 'hash'=>$curUser['password']];
@@ -264,7 +266,7 @@ $app->group('/auth', function () {
             'last_name' => array('rule'=>'notEmpty', 'msg' => 'Entrez votre nom'),
             'email'     => array('rule'=>'email',    'msg' => 'Entrez un email valide'),
             'password'  => array('rule'=>'password', 'msg' => 'Les mots de passe ne concordent pas !',
-                                 'fields'=>['nouveau'=>'pass_new', 'confirmation'=>'pass_new2', 'ancien'=>$pswdAncienValidate],
+                                 'fields'=>['nouveau'=>'password', 'confirmation'=>'password_confirm', 'ancien'=>$pswdAncienValidate],
                                  'canBeSkiped'=>!empty($post['id']))
         ];
 
@@ -276,6 +278,7 @@ $app->group('/auth', function () {
                 if (\CoreHelpers\User::emailExist($post['email']))
                     $ErrorsCtrl->addError('email', 'Email déjà existant');
             }
+            $post['roles'] = $Auth->getRoles($post['roles']);
         }
 
         if ($ErrorsCtrl->hasError) { // On a trouvé une erreur, on redirige !
@@ -288,21 +291,29 @@ $app->group('/auth', function () {
                 return $response->withHeader('Location', $RouteHelper->getPathFor('auth/users/edit').'/'.$post['id']);
             }
         } else { // On a effectué toutes les vérifications
-            if (empty($post['id'])) {
-                $msg = "Ajout d'un utilisateur: ".$post['email'].' - '.json_encode($post['roles']);
-                // \CoreHelpers\User::insert($post);
+            if (empty($post['password']))
+                unset($post['password']);
+            else
+                $post['password'] = password_hash($post['password'], PASSWORD_BCRYPT);
+            var_dump($post);
+            $usrId = $post['id'];
+            $rolesSlug = array_keys($post['roles']);
+            unset($post['id'], $post['password_confirm'], $post['csrf_name'], $post['csrf_value']);
+            if (empty($usrId)) {
+                $usrId = \CoreHelpers\User::insert($post);
+                $msg = "Ajout d'un utilisateur #".$usrId." : ".$post['email'].' - '.json_encode($rolesSlug);
                 $this->logger->addInfo($msg);
                 $this->flash->addMessage('success', $msg);
                 echo $msg;
             } else {
-                $msg = "MAJ utilisateur #".$post['id']." : ".$post['email'].' - '.json_encode($post['roles']);
-                // \CoreHelpers\User::update($post);
+                $msg = "MAJ utilisateur #".$usrId." : ".$post['email'].' - '.json_encode($rolesSlug);
+                \CoreHelpers\User::update($usrId, $post, $curUser);
                 $this->logger->addInfo($msg);
                 $this->flash->addMessage('success', $msg);
                 echo $msg;
             }
         }
-
+        return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
     })->setName('auth/users/commit');
 
   });

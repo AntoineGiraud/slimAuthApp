@@ -258,6 +258,20 @@ class Auth {
         return $this->routesSlim;
     }
 
+    // --------------------  -------------------- //
+    public function getRoles($rolesSlug=[]) {
+        if (empty($rolesSlug))
+            return $this->roles;
+        else {
+            $retour = [];
+            foreach ($rolesSlug as $role) {
+                if (isset($this->roles[$role]))
+                    $retour[$role] = $this->roles[$role];
+            }
+            return $retour;
+        }
+    }
+
     // -------------------- Security & Token functions -------------------- //
     public static function generateToken($nom = '') {
         $token = md5(uniqid(rand(147,1753), true));

@@ -33,7 +33,64 @@ class User {
 
     public static function deleteUser($id) {
         global $DB;
-        $users = $DB->query('DELETE FROM auth_users WHERE id = :id', ['id' => $id]);
+        $DB->query('DELETE FROM auth_permissions WHERE user_id = :id', ['id' => $id]);
+        $DB->query('DELETE FROM auth_user_has_role WHERE user_id = :id', ['id' => $id]);
+        $DB->query('DELETE FROM auth_users WHERE id = :id', ['id' => $id]);
+    }
+    public static function insert($post) {
+        global $DB;
+        if (isset($post['roles'])) {
+            $userRoles = $post['roles'];
+            unset($post['roles']);
+        }
+        $keysSql = implode(',', array_keys($post));
+        $valuesSql = ':'.implode(', :', array_keys($post));
+        $usrId = $DB->query("INSERT INTO auth_users ($keysSql) VALUES ($valuesSql)", $post);
+        // insert des roles si existants
+        $valuesRole = [];
+        foreach ($userRoles as $role)
+            $valuesRole[] = '('.(int)$usrId.', '.(int)$role['id'].')';
+        if (!empty($valuesRole))
+            $DB->query("INSERT INTO `auth_user_has_role` (`user_id`, `role_id`) VALUES ".implode(', ', $valuesRole));
+
+        return $usrId;
+    }
+    public static function update($id, $post, $curUsr=[]) {
+        global $DB;
+        if (isset($post['roles'])) {
+            $userRoles = $post['roles'];
+            unset($post['roles']);
+        }
+        $setSql = [];
+        $data = [];
+        foreach ($post as $key => $value) {
+            if (isset($curUsr[$key]) && $curUsr[$key] == $value)
+                continue;
+            $setSql[] = $key.' = :'.$key;
+            $data[$key] = $value;
+        }
+        $setSql = implode(', ', $setSql);
+        if (!empty($setSql))
+            $DB->query("UPDATE `auth_users` SET $setSql WHERE `auth_users`.`id` = ".(int)$id, $data);
+
+        // Maj des roles: on supprime tout et on rajoute les nouveaux
+        $valuesRole = [];
+        $update = count($userRoles) != count($curUsr['roles']);
+        foreach ($userRoles as $role) {
+            if (isset($curUsr['roles'][$role['slug']]))
+                continue;
+            $valuesRole[] = '('.(int)$id.', '.(int)$role['id'].')';
+            $update = true;
+        }
+        if ($update)
+            $DB->query('DELETE FROM auth_user_has_role WHERE user_id = :id', ['id' => $id]);
+        if (!empty($valuesRole))
+            $DB->query("INSERT INTO `auth_user_has_role` (`user_id`, `role_id`) VALUES ".implode(', ', $valuesRole));
+    }
+    public static function replaceRoles($id, $roles) {
+        global $DB;
+
+        $sql = "INSERT INTO auth_users () VALUES ()";
     }
 
     public static function getUsersList() {
