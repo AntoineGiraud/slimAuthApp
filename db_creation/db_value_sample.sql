@@ -33,6 +33,5 @@ INSERT INTO `auth_permissions` (`user_id`, `role_id`, `permission`, `category`, 
 (null, 2, 'login', 'role', 1),
 (null, 2, 'logout', 'role', 1),
 (null, 2, 'account', 'role', 1),
-(null, 3, 'operations/vue_operations', 'role', 1),
-(null, 3, 'operations/vuePersoOperations', 'role', 1),
+(null, 3, 'operations/*', 'role', 1),
 (3, null, 'operations/vue_operations', 'user', 1);

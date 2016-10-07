@@ -24,7 +24,7 @@ class Auth {
         if ($this->sourceConfig == 'file') {
             $roles = $AuthConfig['roles'];
             $this->permissions = $AuthConfig['permissions'];
-        } else if(!empty($DB)) { // $this->sourceConfig == 'database'
+        } else if (!empty($DB)) { // $this->sourceConfig == 'database'
             // auth_roles: {id, slug, name, created_at, updated_at}
             $roles = $DB->query('SELECT * FROM auth_roles');
             $this->permissions = self::loadPermissionsFromDB();
@@ -213,6 +213,27 @@ class Auth {
     }
 
     /**
+     * est ce que la page est dans le tableau de page passé ?
+     * @param  String $page
+     * @param  Array $array
+     * @return Boolean
+     * pageInArray('auth/user', ['auth/user']) > true
+     * pageInArray('auth/user', ['auth/user/edit']) > false
+     * pageInArray('auth/user', ['auth/*']) > true
+     */
+    public static function pageInArray($page, $array) {
+        if (empty($array) || empty($page))
+            return false;
+        foreach ($array as $val) {
+            if ($val == $page)
+                return true;
+            else if ( substr($val, -1) == '*' && strpos($page, substr($val, 0, -1)) == 0 )
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Est ce que l'utilisateur peut accéder au moins une des pages ?
      * @return Array  Liste de pages à valider
      */
@@ -221,16 +242,10 @@ class Auth {
         $user = $this->getSessionUser();
         if ($this->isSuperAdmin())
             return true;
-        else {
-            foreach ($pages as $page) {
-                if (!empty($user['userPermissions']['allowed']) && in_array($page, $user['userPermissions']['allowed']))
+        else
+            foreach ($pages as $page)
+                if (self::pageInArray($page, $user['permissions']))
                     return true;
-                // else if (!empty($user['userPermissions']['not_allowed']) && in_array($page, $user['userPermissions']['not_allowed']))
-                //     return false;
-                else if (!empty($user['permissions']) && in_array($page, $user['permissions']))
-                    return true;
-            }
-        }
         return false;
     }
     /**
@@ -242,19 +257,11 @@ class Auth {
         $user = $this->getSessionUser();
         if ($this->isSuperAdmin())
             return true;
-        else {
-            foreach ($pages as $page) {
-                if (!empty($user['userPermissions']['allowed']) && in_array($page, $user['userPermissions']['allowed']))
-                    return true;
-                else if (!empty($user['userPermissions']['not_allowed']) && in_array($page, $user['userPermissions']['not_allowed']))
+        else
+            foreach ($pages as $page)
+                if (!self::pageInArray($page, $user['permissions']))
                     return false;
-                else if (!empty($user['permissions']) && in_array($page, $user['permissions']))
-                    return true;
-                else
-                    return false;
-            }
-        }
-        return false;
+        return true;
     }
 
     public function setSlimRoutes($slimApp) {

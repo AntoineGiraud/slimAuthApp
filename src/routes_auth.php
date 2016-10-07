@@ -45,7 +45,7 @@ $app->post('/login', function ($request, $response, $args) {
             $this->flash->addMessage('danger', 'Identifiants incorects');
             return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('login')."?errorLogin=1");
         }
-    }else if (!empty($_POST)) { // Si l'utilisateur n'a pas rempli tous les champs demandés
+    } else if (!empty($_POST)) { // Si l'utilisateur n'a pas rempli tous les champs demandés
         $this->flash->addMessage('danger', 'Veuillez remplir tous vos champs');
         return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('login')."?errorLogin=1");
     }
