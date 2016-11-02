@@ -64,7 +64,7 @@
   <body>
 
     <div class="container">
-      <?php foreach ($flash->getMessages() as $key => $flashs): ?>
+      <?php foreach ($RouteHelper->flash->getMessages() as $key => $flashs): ?>
         <?php foreach ($flashs as $flashMsg): ?>
           <div class="alert alert-<?= $key ?>"><button class="close" data-dismiss="alert">×</button><?php echo $flashMsg ?></div>
         <?php endforeach ?>
@@ -78,8 +78,8 @@
         <input type="email" name="email" class="form-control" placeholder="Email" required autofocus>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Se connecter</button>
-        <?php if (!empty($Auth->casUrl)): ?>
-        <a href="<?= $casUrl ?>" class="btn btn-lg btn-info btn-block">Ou avec <?= basename(dirname($Auth->casUrl)) ?></a>
+        <?php if (!empty($RouteHelper->Auth->casUrl)): ?>
+        <a href="<?= $casUrl ?>" class="btn btn-lg btn-info btn-block">Ou avec <?= basename(dirname($RouteHelper->Auth->casUrl)) ?></a>
         <?php endif; ?>
       </form>
         <hr>

@@ -33,21 +33,26 @@ $container['csrf'] = function ($c) {
     return $guard;
 };
 
+///////////////////////////////
+// Connexion base de données //
+///////////////////////////////
+$container['DB'] = function ($c) {
+    $confSQL = $c->get('settings')['confSQL'];
+    try {
+        $DB = new \CoreHelpers\DB($confSQL['sql_host'],$confSQL['sql_user'],$confSQL['sql_pass'],$confSQL['sql_db']);
+    } catch (Exception $e) {
+        $DB = null;
+    }
+    return $DB;
+};
+$DB = $container['DB'];
+
+$container['Auth'] = function ($c) {
+    $settings = $c->get('settings');
+    $Auth = new \CoreHelpers\Auth($settings['Auth'], $c->DB);
+    $Auth->setFlashCtrl($c->flash);
+    return $Auth;
+};
 ///////////////////////////
 // Autre initialisations //
 ///////////////////////////
-
-$confSQL = $settings['settings']['confSQL'];
-try {
-    $DB = new \CoreHelpers\DB($confSQL['sql_host'],$confSQL['sql_user'],$confSQL['sql_pass'],$confSQL['sql_db']);
-} catch (Exception $e) {
-    $DB = null;
-}
-// view renderer
-$container['DB'] = function ($c) {
-    global $DB;
-    return $DB;
-};
-
-$Auth = new \CoreHelpers\Auth($settings['settings']['Auth']);
-$Auth->setFlashCtrl($container['flash']);

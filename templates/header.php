@@ -1,3 +1,4 @@
+<?php $Auth = $RouteHelper->Auth ?>
 <!DOCTYPE html>
 <html lang="fr">
   <head>
@@ -7,6 +8,7 @@
      <!-- Le styles -->
     <link href="<?= $RouteHelper->publicUrl ?>css/bootstrap.min.css" rel="stylesheet">
     <link href="<?= $RouteHelper->publicUrl ?>css/main.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="<?= $RouteHelper->publicUrl ?>css/imprimante.css" media="print" />
 
     <meta name="description" content="VisuLignes - Connexion">
     <meta name="author" content="Antoine Giraud">
@@ -76,7 +78,7 @@
     </nav><!-- /.navbar -->
 
     <div class="container">
-      <?php foreach ($flash->getMessages() as $key => $flashs): ?>
+      <?php foreach ($RouteHelper->flash->getMessages() as $key => $flashs): ?>
         <?php foreach ($flashs as $flashMsg): ?>
           <div class="alert alert-<?= $key ?>"><button class="close" data-dismiss="alert">×</button><?php echo $flashMsg ?></div>
         <?php endforeach ?>

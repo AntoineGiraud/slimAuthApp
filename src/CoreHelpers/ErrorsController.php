@@ -33,7 +33,7 @@ class ErrorsController {
      * * RegExp: Expression régulière
      *   * $validate['date'] = array('rule'=>'^[0-9]{4}-[0-1]{1}[0-9]{1}-[0-3]{1}[0-9]{1}$', 'msg' => 'Entrez une date valide')
      */
-    function __construct($validations) {
+    function __construct($validations=[]) {
         $this->hasError = 0;
         $this->validations = $validations;
         $this->errors = [];
@@ -75,7 +75,16 @@ class ErrorsController {
                         $this->addError($key, $validate['msg']);
                 } else if ($validate['rule'] == 'email'){
                     if ((empty($data[$key]) || !filter_var($data[$key], FILTER_VALIDATE_EMAIL)))
-                        $this->addError($key, $validate['msg'].$data[$key]);
+                        $this->addError($key, $validate['msg'].' : '.$data[$key]);
+                }  else if ($validate['rule'] == 'integer'){
+                    if (!is_numeric($data[$key]))
+                        $this->addError($key, $validate['msg'].' : '.$data[$key]);
+                } else if ($validate['rule'] == 'date'){
+                    if (!preg_match('/^[0-9]{4}-[0-1][0-9]-[0-3][0-9]$/', $data[$key]))
+                        $this->addError($key, $validate['msg'].' : '.$data[$key]);
+                } else if ($validate['rule'] == 'hour'){
+                    if (!preg_match('/^[0-2][0-9]:[0-5][0-9](:[0-5][0-9]([.][0-9]{3})?)?$/', $data[$key]))
+                        $this->addError($key, $validate['msg'].' : '.$data[$key]);
                 } else if (!preg_match('/'.$validate['rule'].'/', $data[$key]))
                     $this->addError($key, $validate['msg']);
             }
@@ -90,7 +99,6 @@ class ErrorsController {
      */
     public function addError($key, $msg='') {
         $this->hasError ++;
-        var_dump(['hasError' => true, 'msg' => $msg]);
         $this->errors[$key] = ['hasError' => true, 'msg' => $msg];
     }
 

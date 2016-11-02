@@ -6,7 +6,7 @@
   </div>
 </h1>
 
-<?php if ($Auth->sourceConfig != 'database'): ?>
+<?php if ($RouteHelper->Auth->sourceConfig != 'database'): ?>
     <p class="alert alert-warning"> Il n'est pas possible d'éditer les membres avec une configuration fichier. Migrez vers une configuration base de données.</p>
 <?php endif ?>
 
@@ -32,7 +32,7 @@
             <td>
                 <div class="pull-right">
                   <a href="<?= $RouteHelper->getPathFor('auth/users/edit/'.$user['id']) ?>" title="Editer l'utilisateur #<?= $user['id']; ?>"><i class="glyphicon glyphicon-pencil"></i></a>
-                  <a href="<?= $RouteHelper->getPathFor('auth/users/delete/'.$user['id'].'/'.$token['name'].'/'.$token['value']) ?>" title="Supprimer l'utilisateur #<?= $user['id']; ?>" onclick="return confirm('Voulez-vous vraiment supprimer ce admin ?');"><i class="glyphicon glyphicon-trash"></i></a>
+                  <a href="<?= $RouteHelper->getPathFor('auth/users/delete/'.$user['id'].'/'.$token['name'].'/'.$token['value']) ?>" title="Supprimer l'utilisateur #<?= $user['id']; ?>" onclick="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');"><i class="glyphicon glyphicon-trash"></i></a>
                 </div>
             </td>
         </tr>

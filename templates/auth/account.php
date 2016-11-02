@@ -1,5 +1,5 @@
-<?php $user = $Auth->getSessionUser() ?>
-<?php // $user = \CoreHelpers\User::getUser($Auth, 'user1@operations', 'motdepasse', false) ?>
+<?php $user = $RouteHelper->Auth->getSessionUser() ?>
+<?php // $user = \CoreHelpers\User::getUser($RouteHelper->Auth, 'user1@operations', 'motdepasse', false) ?>
 
 <h1 class="page-header"><span class="glyphicon glyphicon-user"></span> Mon compte</h1>
 <h2>Informations personnelles</h2>
@@ -20,7 +20,7 @@
     </dd>
     <dt>Connexion <abbr title="Service Central d'Authentification">CAS</abbr></dt>
     <dd>
-        <?php if ($Auth->isLoggedUsingCas()) { ?>
+        <?php if ($RouteHelper->Auth->isLoggedUsingCas()) { ?>
             <span class="label label-success">Oui</span>
         <?php } else { ?>
             <span class="label label-danger">Non</span>
@@ -40,7 +40,7 @@
     </dd>
     <dt>Pages disponibles</dt>
     <dd>
-        <?php if ($Auth->isSuperAdmin($user)) { ?>
+        <?php if ($RouteHelper->Auth->isSuperAdmin($user)) { ?>
             <p class="alert alert-info">En tant qu'administrateur, vous avez accès à toutes les pages.</p>
         <?php } else if (!empty($user['permissions'])) { ?>
             <ul>

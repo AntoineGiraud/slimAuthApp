@@ -1,6 +1,6 @@
 <dl class="dl-horizontal">
     <dt>Configuration :</dt>
-    <dd><?= $Auth->sourceConfig == 'file' ? 'fichier' : 'base de données' ?></dd>
+    <dd><?= $RouteHelper->Auth->sourceConfig == 'file' ? 'fichier' : 'base de données' ?></dd>
 </dl>
 
 <h1 class="page-header"><span class="glyphicon glyphicon-certificate"></span> Liste des droits</h1>
@@ -20,12 +20,12 @@
             <td>superadmin</td>
             <td colspan="2">toutes les pages du site</td>
         </tr>
-    <?php foreach($Auth->permissions['forRole'] as $k => $role): ?>
+    <?php foreach($RouteHelper->Auth->permissions['forRole'] as $k => $role): ?>
         <tr>
-            <td><span class="label <?= $k == $Auth->allUserRole ? 'label-info' : 'label-primary' ?>">role</span></td>
+            <td><span class="label <?= $k == $RouteHelper->Auth->allUserRole ? 'label-info' : 'label-primary' ?>">role</span></td>
             <td>
                 <?= $k ?>
-                <?php if ($k == $Auth->allUserRole): ?>
+                <?php if ($k == $RouteHelper->Auth->allUserRole): ?>
                     <small><em>Pages pour tout les utilisateurs</em></small>
                 <?php endif ?>
             </td>
@@ -33,7 +33,7 @@
             <td><code><?= implode('</code>, <code>', $role['not_allowed']) ?></code></td>
         </tr>
     <?php endforeach ?>
-    <?php foreach($Auth->permissions['forUser'] as $k => $user): ?>
+    <?php foreach($RouteHelper->Auth->permissions['forUser'] as $k => $user): ?>
         <tr>
             <td><span class="label label-warning">user</span></td>
             <td><?= $k ?></td>
@@ -86,7 +86,7 @@
                 </tr>
             </thead>
             <tbody>
-            <?php foreach($Auth->getRoles() as $role): ?>
+            <?php foreach($RouteHelper->Auth->getRoles() as $role): ?>
                 <tr>
                     <td><?= $role['name'] ?></td>
                     <td><?= $role['slug'] ?></td>
@@ -109,7 +109,7 @@
         </tr>
     </thead>
     <tbody>
-    <?php foreach($Auth->routesSlim as $route): ?>
+    <?php foreach($RouteHelper->Auth->routesSlim as $route): ?>
         <tr>
             <td><?= $route['identifier'] ?></td>
             <td><?= $route['name'] ?></td>

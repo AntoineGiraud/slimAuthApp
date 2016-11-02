@@ -8,6 +8,8 @@ namespace CoreHelpers;
 class RouteHelper {
 
     public $app;
+    public $Auth;
+    public $flash;
 
     public $publicPath;
     public $curPageUri;
@@ -21,6 +23,8 @@ class RouteHelper {
 
     function __construct($app, $request, $pageName){
         $this->app = $app;
+        $this->Auth = $app->Auth;
+        $this->flash = $app->flash;
 
         $this->publicPath = $app->get('settings')['public_path'];
         $this->publicUrl = $app->get('settings')['public_url'];
@@ -43,8 +47,7 @@ class RouteHelper {
     }
 
     public function showLinkLi($page, $label, $args=""){
-        global $Auth;
-        if ($Auth->memberCanAccessPages($page)) {
+        if ($this->Auth->memberCanAccessPages($page)) {
             return '<li><a href="'.$this->getPathFor($page) . $args.'">'.$label.'</a></li>';
         }
         return '';

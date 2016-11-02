@@ -1,4 +1,4 @@
-<?php if ($Auth->sourceConfig != 'database'): ?>
+<?php if ($RouteHelper->Auth->sourceConfig != 'database'): ?>
     <p class="alert alert-warning">
         Il n'est pas possible d'éditer les membres avec une configuration fichier. Migrez vers une configuration base de données.
     </p>
@@ -59,7 +59,7 @@
                         <input name="roles[]" type="hidden" value="">
                         <select name="roles[]" class="form-control" id="selectrole_id" multiple>
                             <option value="">Aucun rôle particulier</option>
-                            <?php foreach ($Auth->roles as $role): if ($role['slug'] == $Auth->allUserRole) {continue;} ?>
+                            <?php foreach ($RouteHelper->Auth->roles as $role): if ($role['slug'] == $RouteHelper->Auth->allUserRole) {continue;} ?>
                                 <option <?= array_key_exists($role['slug'], $user['roles'])?'selected="selected"':'' ?> value="<?= $role['slug'] ?>"><?= $role['name'] ?></option>
                             <?php endforeach ?>
                         </select>

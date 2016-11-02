@@ -3,6 +3,8 @@
 return [
     'settings' => [
         'displayErrorDetails' => true,
+        'addContentLengthHeader' => false,
+        'displayErrorDetails' => true,
 
         // Renderer settings
         'renderer' => [

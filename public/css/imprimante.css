@@ -1,0 +1,23 @@
+.container {
+    width: 870pt!important;
+  margin: 0!important;
+}
+body {
+  padding: 0;
+  width: 870pt!important;
+  margin: 0!important;
+  font-size: 12pt;
+  background-color: #fff!important;
+  color: #000!important;
+  font-size: 10pt!important;
+}
+p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol, legend {
+  color: #000!important;
+  margin: auto!important;
+}
+h1, h2, footer, .footer{
+	display: none;
+}
+.table-condensed > tbody > tr > td, .table-condensed > tbody > tr > th, .table-condensed > tfoot > tr > td, .table-condensed > tfoot > tr > th, .table-condensed > thead > tr > td, .table-condensed > thead > tr > th {
+    padding: 3px;
+}

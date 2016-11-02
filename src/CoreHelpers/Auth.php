@@ -16,8 +16,8 @@ class Auth {
     public $allUserRole;
     public $baseAllowedPages;
 
-    function __construct($AuthConfig) {
-        global $DB, $settings;
+    function __construct($AuthConfig, $DB) {
+        $this->DB = $DB;
         $this->casUrl = !empty($AuthConfig['casUrl']) ? $AuthConfig['casUrl'] : null;
         $this->sourceConfig = $AuthConfig['sourceConfig'];
         $this->allUserRole = $AuthConfig['allUserRole'];
@@ -78,8 +78,7 @@ class Auth {
      * $permissions = ['forRole' => ['member' => ['allowed' => ['login'], 'not_allowed' => [] ], 'forUser' => [...]
      */
     public function loadPermissionsFromDB() {
-        global $DB;
-        $res = $DB->query('SELECT p.*, u.email user_email, r.slug role_slug
+        $res = $this->DB->query('SELECT p.*, u.email user_email, r.slug role_slug
                     FROM `auth_permissions` p
                         LEFT JOIN auth_roles r ON r.id = p.role_id
                         LEFT JOIN auth_users u ON u.id = p.user_id');
@@ -107,7 +106,6 @@ class Auth {
     /////////////////////////////
 
     function login($d) {
-        global $DB;
         $user = User::getUser($this, $d['email'], $d['password']);
         if (empty($user)) {
             // $this->flash->addMessage('warning', "Vous n'avez pas les droits d'accéder au site.<br>Faites la demande aux responsables au besoin.");
@@ -227,7 +225,7 @@ class Auth {
         foreach ($array as $val) {
             if ($val == $page)
                 return true;
-            else if ( substr($val, -1) == '*' && strpos($page, substr($val, 0, -1)) == 0 )
+            else if ( substr($val, -1) == '*' && strpos($page, substr($val, 0, -1)) === 0 )
                 return true;
         }
         return false;
@@ -313,7 +311,7 @@ class Auth {
     }
 
     public static function validateToken($token, $nom = '', $temps = 600, $referer = '') {
-        global $DB, $settings;
+        global $settings;
         if (empty($referer))
             $referer = $settings['settings']['public_url'].basename($_SERVER['REQUEST_URI']);
         if (!empty($_SESSION['tokens'][$nom.'_token']['token']) && !empty($token)) {
