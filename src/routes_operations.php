@@ -7,7 +7,7 @@
 $app->group('/operations', function () {
     // Page ouverte à tous
     $this->get('/vue_operations', function ($request, $response, $args) {
-        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'vue opérations');
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'vue opérations');
 
         $this->renderer->render($response, 'header.php', compact('RouteHelper', $args));
         $this->renderer->render($response, 'operations/vue_operations.php', compact('RouteHelper', $args));
@@ -19,7 +19,7 @@ $app->group('/operations', function () {
     /////////////////
 
     $this->get('/vuePersoOperations', function ($request, $response, $args) {
-        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'vue perso opérations');
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'vue perso opérations');
 
         // Sample log message
         // $this->logger->info("Slim-Skeleton '/' index");

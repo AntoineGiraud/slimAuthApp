@@ -6,7 +6,7 @@
 
 // Page ouverte à tous
 $app->get('/about', function ($request, $response, $args) {
-    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'A propos');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'A propos');
 
     $this->renderer->render($response, 'header.php', compact('RouteHelper', $args));
     $this->renderer->render($response, 'about.php', compact('RouteHelper', $args));
@@ -18,7 +18,7 @@ $app->get('/about', function ($request, $response, $args) {
 /////////////////
 
 $app->get('/', function ($request, $response, $args) {
-    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Accueil');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Accueil');
 
     // Sample log message
     // $this->logger->info("Slim-Skeleton '/' index");
