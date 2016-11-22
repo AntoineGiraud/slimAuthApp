@@ -16,7 +16,7 @@ class User {
             'id' => '',
             'email' => '',
             'last_login' => '',
-            'online' => 1,
+            'is_active' => 1,
             'first_name' => '',
             'last_name' => '',
             'created_at' => '',
@@ -34,9 +34,9 @@ class User {
     public static function deleteUser($id) {
         global $DB;
         $DB->query('DELETE FROM auth_permissions WHERE user_id = :id', ['id' => $id]);
-        $DB->query('DELETE FROM auth_user_has_role WHERE user_id = :id', ['id' => $id]);
         $DB->query('DELETE FROM auth_users WHERE id = :id', ['id' => $id]);
     }
+
     public static function insert($post) {
         global $DB;
         if (isset($post['roles'])) {
@@ -49,9 +49,9 @@ class User {
         // insert des roles si existants
         $valuesRole = [];
         foreach ($userRoles as $role)
-            $valuesRole[] = '('.(int)$usrId.', '.(int)$role['id'].')';
+            $valuesRole[] = '('.(int)$usrId.', '.(int)$role['id'].', 3)'; // user_has_role = 3
         if (!empty($valuesRole))
-            $DB->query("INSERT INTO `auth_user_has_role` (`user_id`, `role_id`) VALUES ".implode(', ', $valuesRole));
+            $DB->query("INSERT INTO `auth_permissions` (`user_id`, `role_id`, `type_id`) VALUES ".implode(', ', $valuesRole));
 
         return $usrId;
     }
@@ -79,13 +79,14 @@ class User {
         foreach ($userRoles as $role) {
             if (isset($curUsr['roles'][$role['slug']]))
                 continue;
-            $valuesRole[] = '('.(int)$id.', '.(int)$role['id'].')';
+            $valuesRole[] = '('.(int)$id.', '.(int)$role['id'].', 3)'; // user_has_role = 3
             $update = true;
         }
+
         if ($update)
-            $DB->query('DELETE FROM auth_user_has_role WHERE user_id = :id', ['id' => $id]);
+            $DB->query('DELETE FROM auth_permissions WHERE type_id = 3 AND user_id = :id', ['id' => $id]);
         if (!empty($valuesRole))
-            $DB->query("INSERT INTO `auth_user_has_role` (`user_id`, `role_id`) VALUES ".implode(', ', $valuesRole));
+            $DB->query("INSERT INTO auth_permissions (user_id, role_id, type_id) VALUES ".implode(', ', $valuesRole));
     }
     public static function replaceRoles($id, $roles) {
         global $DB;
@@ -97,9 +98,10 @@ class User {
         global $DB;
         $users = $DB->query('SELECT * FROM auth_users');
         $res = $DB->query('SELECT ur.user_id, ur.role_id, u.email, r.slug
-                FROM auth_user_has_role ur
+                FROM auth_permissions ur
                     LEFT JOIN auth_users u ON u.id = ur.user_id
-                    LEFT JOIN auth_roles r ON r.id = ur.role_id');
+                    LEFT JOIN auth_roles r ON r.id = ur.role_id
+                WHERE type_id = 3'); // user_has_role = 3
         $usersHasRole = [];
         foreach ($res as $userRole) {
             if (!isset($usersHasRole[$userRole['email']]))
@@ -148,15 +150,15 @@ class User {
                 return null;
         } else { // database
             global $DB;
-            // id, email, password, last_login, online, first_name, last_name, created_at, updated_at
+            // id, email, password, last_login, is_active, first_name, last_name, created_at, updated_at
             $user = $DB->queryFirst('SELECT * FROM auth_users WHERE email = :email', ['email'=>$mail]);
             if (empty($user) || !$ignorePswd && ($user['password'] != $pswd && !password_verify($pswd, $user['password'])))
                 return null; // On a pas le bon mot de passe
-            // auth_user_has_role: {user_id, role_id, created_at, updated_at}
+            // auth_permissions: {user_id, role_id, created_at, updated_at, type_id=user_has_role}
             $res = $DB->query('SELECT ur.*, r.slug role_slug
-                    FROM auth_user_has_role ur
+                    FROM auth_permissions ur
                         LEFT JOIN auth_roles r ON r.id = ur.role_id
-                    WHERE user_id = :user_id', ['user_id'=>$user['id']]);
+                    WHERE type_id = 3 AND user_id = :user_id', ['user_id'=>$user['id']]); // user_has_role = 3
             $user['roles'] = [];
             foreach ($res as $role)
                 $user['roles'][$role['role_slug']] = $Auth->roles[$role['role_slug']];
@@ -179,5 +181,10 @@ class User {
         if ($removePswd)
             unset($user['password']);
         return $user;
+    }
+
+    public static function fetchAllUsers() {
+        global $DB;
+        return $DB->query('SELECT id, first_name, last_name FROM auth_users');
     }
 }

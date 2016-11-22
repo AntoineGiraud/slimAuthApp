@@ -59,33 +59,63 @@ class Auth {
     }
     public function getUsers() {
         global $settings;
+        if (!empty($this->users))
+            return $this->users;
         if ($this->sourceConfig == 'database') {
-            return \CoreHelpers\User::getUsersList();
+            $this->users = \CoreHelpers\User::getUsersList();
         } else {
-            $users = $settings['settings']['Auth']['users'];
-            foreach ($users as $k => $u)
+            $this->users = $settings['settings']['Auth']['users'];
+            foreach ($this->users as $k => $u)
                 if (!isset($u['id']))
-                    $users[$k]['id'] = $k;
-            return $users;
+                    $this->users[$k]['id'] = $k;
         }
+        return $this->users;
+    }
+
+    public function fetchUsersInGroups($groups=null) {
+        $users = $this->getUsers();
+        if (empty($groups))
+            $groups = ['superviseur', 'mecano'];
+        $retour = [];
+        foreach ($users as $usr) {
+            foreach ($groups as $group) {
+                if (in_array($group, $usr['roles'])) {
+                    unset($usr['password']);
+                    $retour[] = $usr;
+                    break;
+                }
+            }
+        }
+        return $retour;
+    }
+    public function fetchAllUsers() {
+        $users = $this->getUsers();
+        $retour = [];
+        foreach ($users as $usr) {
+            unset($usr['password']);
+            $retour[] = $usr;
+        }
+        return $retour;
     }
 
     /**
      * fonction pour charger les permissions comme dans le fichier de configuration
      * @param  Array $permissions chaque ligne:
-     *   {id, user_id, role_id, permission, category, created_at, updated_at, allowed, user_email, role_slug}
+     *   {id, user_id, role_id, permission, type_id, created_at, updated_at, allowed, user_email, role_slug}
      * @return Array Les permissions rangées comme suit:
      * $permissions = ['forRole' => ['member' => ['allowed' => ['login'], 'not_allowed' => [] ], 'forUser' => [...]
      */
     public function loadPermissionsFromDB() {
+        // permission_types ['role'=>1, 'user'=>2, 'user_has_role'=>3]
         $res = $this->DB->query('SELECT p.*, u.email user_email, r.slug role_slug
                     FROM `auth_permissions` p
                         LEFT JOIN auth_roles r ON r.id = p.role_id
-                        LEFT JOIN auth_users u ON u.id = p.user_id');
-        // id, user_id, role_id, permission, category, created_at, updated_at, allowed, user_email, role_slug
+                        LEFT JOIN auth_users u ON u.id = p.user_id
+                    WHERE type_id < 3');
+        // id, user_id, role_id, permission, type_id, created_at, updated_at, allowed, user_email, role_slug
         $permissions = [ 'forRole' => [], 'forUser' => [] ];
         foreach ($res as $p) {
-            if ($p['category'] == 'role') {
+            if ($p['type_id'] == 1) { // 1 = role (permission_type)
                 $cat = 'forRole';
                 $name = $p['role_slug'];
             } else {
@@ -95,7 +125,7 @@ class Auth {
             if (empty($permissions[$cat][$name]))
                 $permissions[$cat][$name] = [ 'allowed' => [], 'not_allowed' => [] ];
 
-            $allowed = (empty($p['allowed']))? 'not_allowed' : 'allowed';
+            $allowed = (empty($p['can_access']))? 'not_allowed' : 'allowed';
             $permissions[$cat][$name][$allowed][] = $p['permission'];
         }
         return $permissions;
@@ -110,7 +140,7 @@ class Auth {
         if (empty($user)) {
             // $this->flash->addMessage('warning', "Vous n'avez pas les droits d'accéder au site.<br>Faites la demande aux responsables au besoin.");
             return false;
-        } else if ($user['online'] == 1) { // si l'utilisateur est actif dans la BDD
+        } else if ($user['is_active'] == 1) { // si l'utilisateur est actif dans la BDD
             $_SESSION['Auth'] = array();
             $_SESSION['Auth'] = $user;
             return true;
@@ -130,7 +160,7 @@ class Auth {
         }
         $user = (!empty($userEmail))? User::getUser($this, $userEmail, null, true) : null;
         if (!empty($user)) {
-            if($user['online'] == 1) { // si l'utilisateur est actif dans la BDD
+            if($user['is_active'] == 1) { // si l'utilisateur est actif dans la BDD
                 $_SESSION['Auth'] = array();
                 $_SESSION['Auth'] = $user;
                 $_SESSION['Auth']['loggedUsingCas'] = true;
@@ -301,21 +331,21 @@ class Auth {
         return $token;
     }
 
-    public static function generateToken($nom = '') {
+    public static function generateToken($name = '') {
         $token = md5(uniqid(rand(147,1753), true));
-        $_SESSION['tokens'][$nom.'_token'] = [
+        $_SESSION['tokens'][$name.'_token'] = [
             'token' => $token,
             'time' => time()
         ];
         return $token;
     }
 
-    public static function validateToken($token, $nom = '', $temps = 600, $referer = '') {
+    public static function validateToken($token, $name = '', $temps = 600, $referer = '') {
         global $settings;
         if (empty($referer))
             $referer = $settings['settings']['public_url'].basename($_SERVER['REQUEST_URI']);
-        if (!empty($_SESSION['tokens'][$nom.'_token']['token']) && !empty($token)) {
-            $curToken = $_SESSION['tokens'][$nom.'_token'];
+        if (!empty($_SESSION['tokens'][$name.'_token']['token']) && !empty($token)) {
+            $curToken = $_SESSION['tokens'][$name.'_token'];
             if ($curToken['token'] == $token)
                 if ($curToken['time'] >= (time() - $temps)) {
                     if (!empty($_SERVER['HTTP_REFERER']) && dirname($_SERVER['HTTP_REFERER']) == dirname($referer))

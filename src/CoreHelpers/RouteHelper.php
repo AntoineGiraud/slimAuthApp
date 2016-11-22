@@ -8,6 +8,8 @@ namespace CoreHelpers;
 class RouteHelper {
 
     public $app;
+    public $request;
+    public $response;
     public $Auth;
     public $flash;
 
@@ -21,10 +23,13 @@ class RouteHelper {
     public $pageName;
     public $webSiteTitle;
 
-    function __construct($app, $request, $pageName){
+    function __construct($app, $request, $response, $pageName){
         $this->app = $app;
         $this->Auth = $app->Auth;
         $this->flash = $app->flash;
+        $this->request = $request;
+        $this->response = $response;
+        $this->conf = $app->get('settings');
 
         $this->publicPath = $app->get('settings')['public_path'];
         $this->publicUrl = $app->get('settings')['public_url'];
@@ -36,6 +41,11 @@ class RouteHelper {
 
         $this->pageName = $pageName;
         $this->webSiteTitle = $app->get('settings')['webSiteTitle'];
+    }
+
+    function returnWithFlash($redirect, $msg, $flashType='danger') {
+        $this->flash->addMessage($flashType, $msg);
+        return $this->response->withHeader('Location', $this->getPathFor($redirect));
     }
 
     public function getPathFor($page=''){

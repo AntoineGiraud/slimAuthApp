@@ -4,7 +4,7 @@
 // Routes pour la connexion //
 //////////////////////////////
 $app->get('/login', function ($request, $response, $args) {
-    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Login');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Login');
     $service = $RouteHelper->curPageBaseUrl. '/login';
 
     // Connexion via le CAS
@@ -26,7 +26,7 @@ $app->get('/login', function ($request, $response, $args) {
 })->add($container->get('csrf'))->setName('login');
 
 $app->post('/login', function ($request, $response, $args) {
-    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Login');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Login');
 
     if(!empty($_POST['email']) && !empty($_POST['password'])){
         if($this->Auth->login($_POST)){
@@ -45,7 +45,7 @@ $app->post('/login', function ($request, $response, $args) {
 })->add($container->get('csrf'));
 
 $app->get('/logout', function ($request, $response, $args) {
-    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'logout');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'logout');
     if($this->Auth->isLoggedUsingCas()) {
         $service = $RouteHelper->curPageBaseUrl. '/login';
         $casUrl = $this->get('settings')['Auth']['casUrl']."logout?url=".urlencode($service);
@@ -58,7 +58,7 @@ $app->get('/logout', function ($request, $response, $args) {
 })->setName('logout');
 
 $app->get('/account', function ($request, $response, $args) {
-    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Vue compte');
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Vue compte');
 
     $this->renderer->render($response, 'header.php', compact('RouteHelper', $args));
     $this->renderer->render($response, 'auth/account.php', compact('RouteHelper', $args));
@@ -68,7 +68,7 @@ $app->get('/account', function ($request, $response, $args) {
 
 $app->group('/auth', function () {
     $this->get('/list_droits', function ($request, $response, $args) {
-        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des droits');
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Liste des droits');
 
         $users = $this->Auth->getUsers();
         $this->Auth->setSlimRoutes($this);
@@ -80,7 +80,7 @@ $app->group('/auth', function () {
   $this->group('/users', function () {
 
     $this->get('/list', function ($request, $response, $args) {
-        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Liste des utilisateurs');
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Liste des utilisateurs');
 
         $users = $this->Auth->getUsers();
         $token = $this->Auth->getTokenSlimCsrf($this, $request);
@@ -92,10 +92,10 @@ $app->group('/auth', function () {
 
     $this->get('/export', function ($request, $response, $args) {
         $users = $this->Auth->getUsers();
-        $response->getBody()->write('online;email;prenom;nom;roles'."\n");
+        $response->getBody()->write('is_active;email;prenom;nom;roles'."\n");
         foreach ($users as $usr) {
             $response->getBody()->write(
-                $usr['online'].';'.
+                $usr['is_active'].';'.
                 $usr['email'].';'.
                 $usr['first_name'].';'.
                 $usr['last_name'].';'.
@@ -134,7 +134,7 @@ $app->group('/auth', function () {
     })->setName('auth/users/delete');
 
     $this->get('/add', function ($request, $response, $args) {
-        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Ajout nouvel utilisateur');
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Ajout nouvel utilisateur');
 
         $user = \CoreHelpers\User::getBlankFields();
         $token = $this->Auth->getTokenSlimCsrf($this, $request);
@@ -169,7 +169,7 @@ $app->group('/auth', function () {
         }
 
         $user = \CoreHelpers\User::getUser($this->Auth, $userMail, null, true);
-        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Editer utilisateur <small>#'.$id.'</small>');
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Editer utilisateur <small>#'.$id.'</small>');
 
         $token = $this->Auth->getTokenSlimCsrf($this, $request);
 
@@ -188,7 +188,7 @@ $app->group('/auth', function () {
     })->setName('auth/users/edit');
 
     $this->post('/edit', function ($request, $response, $args) {
-        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, 'Edition utilisateur');
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Edition utilisateur');
 
         $post = $request->getParsedBody();
         var_dump($post);

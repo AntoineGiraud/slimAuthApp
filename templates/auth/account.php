@@ -12,10 +12,10 @@
     <dd><?= $user['last_name'] ?></dd>
     <dt>Etat du compte</dt>
     <dd>
-        <?php if ($user['online' ]) { ?>
-            <span class="label label-success">en ligne</span>
+        <?php if ($user['is_active' ]) { ?>
+            <span class="label label-success">actif</span>
         <?php } else { ?>
-            <span class="label label-danger">hors ligne</span>
+            <span class="label label-danger">inactif</span>
         <?php } ?>
     </dd>
     <dt>Connexion <abbr title="Service Central d'Authentification">CAS</abbr></dt>

@@ -47,12 +47,12 @@ $container['DB'] = function ($c) {
 };
 $DB = $container['DB'];
 
+///////////////////////////
+// Autre initialisations //
+///////////////////////////
 $container['Auth'] = function ($c) {
     $settings = $c->get('settings');
     $Auth = new \CoreHelpers\Auth($settings['Auth'], $c->DB);
     $Auth->setFlashCtrl($c->flash);
     return $Auth;
 };
-///////////////////////////
-// Autre initialisations //
-///////////////////////////

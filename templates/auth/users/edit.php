@@ -43,12 +43,12 @@
                     </div>
                 </div>
                 <div class="form-group ">
-                    <label class="col-sm-2 control-label" for="inputonline">En ligne :</label>
+                    <label class="col-sm-2 control-label" for="inputis_active">Actif :</label>
                     <div class="col-sm-10">
                         <div class="checkbox">
                             <label>
-                                <input name="online" type="hidden" value="0">
-                                <input name="online" id="inputonline" type="checkbox" <?= $user['online']?'checked="checked"':'' ?> value="1">
+                                <input name="is_active" type="hidden" value="0">
+                                <input name="is_active" id="inputis_active" type="checkbox" <?= $user['is_active']?'checked="checked"':'' ?> value="1">
                             </label>
                         </div>
                     </div>

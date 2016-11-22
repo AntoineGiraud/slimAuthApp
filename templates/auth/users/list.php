@@ -13,7 +13,7 @@
 <table class="table table-condensed table-bordered table-hover table-striped">
     <thead>
         <tr>
-            <th>online</th>
+            <th>actif</th>
             <th>email</th>
             <th>prenom</th>
             <th>nom</th>
@@ -24,7 +24,7 @@
     <tbody>
     <?php foreach($users as $user): ?>
         <tr>
-            <td><span class="label <?= ($user['online'])?"label-success":"label-danger" ?>"><?= $user['online'] ?></span></td>
+            <td><span class="label <?= ($user['is_active'])?"label-success":"label-danger" ?>"><?= $user['is_active'] ?></span></td>
             <td><?= $user['email'] ?></td>
             <td><?= $user['first_name'] ?></td>
             <td><?= $user['last_name'] ?></td>
