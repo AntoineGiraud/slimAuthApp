@@ -2,6 +2,9 @@
 
 namespace CoreHelpers;
 use \CoreHelpers\User;
+use \CoreHelpers\loginLDAPuserUnknownInThisAppException;
+use \CoreHelpers\loginCASonlyException;
+use \CoreHelpers\loginLDAPonlyException;
 
 class Auth {
 
@@ -134,12 +137,19 @@ class Auth {
     /////////////////////////////
 
     function login($d) {
-        $user = User::getUser($this, $d['email'], $d['password']);
+        try {
+            $user = User::getUser($this, $d['email'], $d['password']);
+        } catch (\CoreHelpers\loginLDAPuserUnknownInThisAppException $e) {
+            $this->flash->addMessage('warning', "Vos identifiants sont corrects mais vous n'avez pas les droits pour accéder au site.<br>Faites la demande aux responsables au besoin.");
+            return false;
+        } catch (\CoreHelpers\loginCASonlyException $e) {
+            $this->flash->addMessage('warning', "Veuillez utiliser la connexion via le CAS");
+            return false;
+        } catch (\CoreHelpers\loginLDAPonlyException $e) {
+            $this->flash->addMessage('warning', "Pensez à utiliser vos identifiants entreprise");
+            return false;
+        }
         if (empty($user)) {
-            $res = User::checkLdapPswd($d['email'], $d['password'], $this->ldapUrl);
-            if ($res) {
-                $this->flash->addMessage('warning', "Vos identifiants sont corrects mais vous n'avez pas les droits pour accéder au site.<br>Faites la demande aux responsables au besoin.");
-            }
             return false;
         } else if ($user['is_active'] == 1) { // si l'utilisateur est actif dans la BDD
             $_SESSION['Auth'] = array();

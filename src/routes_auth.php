@@ -199,7 +199,7 @@ $app->group('/auth', function () {
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Edition utilisateur');
 
         $post = $request->getParsedBody();
-        var_dump($post);
+        // var_dump($post);
 
         $userMail = (empty($post['id'])) ? '' : \CoreHelpers\User::getMailFromId($post['id']);
         if (!empty($post['id']) && empty($userMail)) {
@@ -253,7 +253,7 @@ $app->group('/auth', function () {
                 unset($post['password']);
             else
                 $post['password'] = password_hash($post['password'], PASSWORD_BCRYPT);
-            var_dump($post);
+            // var_dump($post);
             $usrId = $post['id'];
             $rolesSlug = array_keys($post['roles']);
             unset($post['id'], $post['password_confirm'], $post['csrf_name'], $post['csrf_value']);

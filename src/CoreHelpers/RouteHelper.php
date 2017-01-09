@@ -62,4 +62,18 @@ class RouteHelper {
         }
         return '';
     }
+
+    public static function cleanAccentuations($value) {
+        $return = $value;
+        $return = strtolower(trim($return));
+        $return = str_replace(array('(',')','{','}'), '', $return);
+        $return = str_replace(array(' - '), '-', $return);
+        $return = str_replace(array(' ','\''), '-', $return);
+        $return = str_ireplace(array('é','è','ê','ë'), 'e', $return);
+        $return = str_ireplace(array('à','â','ä'), 'a', $return);
+        $return = str_ireplace(array('ï','î'), 'i', $return);
+        $return = str_ireplace(array('ö','ô'), 'o', $return);
+        $return = str_ireplace(array('û','ü'), 'u', $return);
+        return $return;
+    }
 }

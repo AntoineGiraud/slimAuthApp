@@ -2,9 +2,6 @@
 
 namespace CoreHelpers;
 
-/**
-*
-*/
 class User {
 
     function __construct() {
@@ -154,7 +151,7 @@ class User {
      * @return [type]              retourne les informations de l'utilisateur (champs de base, roles & permissions)
      */
     public static function getUser($Auth, $mail, $pswd=null, $ignorePswd=false, $removePswd=true) {
-        $ldapAuthValid = self::checkLdapPswd($mail, $pswd, $Auth->ldapUrl);
+        $ldapAuthValid = ($ignorePswd)? false : self::checkLdapPswd($mail, $pswd, $Auth->ldapUrl);
         if ($Auth->sourceConfig == "file") {
             global $settings;
             $user = null;
@@ -165,14 +162,31 @@ class User {
                     break;
                 }
             }
-            if (empty($user))
+            if (empty($user)) {
+                if ($ldapAuthValid)
+                    throw new loginLDAPuserUnknownInThisAppException("Utilisateur LDAP inconnu", 1);
                 return null;
+            } else if (!$ignorePswd) {
+                if ($user['password'] == "ldap_only" && !$ldapAuthValid)
+                    throw new \CoreHelpers\loginLDAPonlyException("ldap_only", 1);
+                else if ($user['password'] == "cas_only")
+                    throw new \CoreHelpers\loginCASonlyException("cas_only", 1);
+            }
         } else { // database
             global $DB;
             // id, email, password, last_login, is_active, first_name, last_name, created_at, updated_at
             $user = $DB->queryFirst('SELECT * FROM auth_users WHERE email = :email', ['email'=>$mail]);
-            if (empty($user) || !$ignorePswd && ($user['password'] != $pswd && !password_verify($pswd, $user['password']) && !$ldapAuthValid))
+            if (!empty($user) && !$ignorePswd) {
+                if ($user['password'] == "ldap_only" && !$ldapAuthValid)
+                    throw new \CoreHelpers\loginLDAPonlyException("ldap_only", 1);
+                else if ($user['password'] == "cas_only")
+                    throw new \CoreHelpers\loginCASonlyException("cas_only", 1);
+            }
+            if (empty($user) || !$ignorePswd && ($user['password'] != $pswd && !password_verify($pswd, $user['password']) && !$ldapAuthValid)) {
+                if ($ldapAuthValid)
+                    throw new loginLDAPuserUnknownInThisAppException("Utilisateur LDAP inconnu", 1);
                 return null; // On a pas le bon mot de passe
+            }
             // auth_permissions: {user_id, role_id, created_at, updated_at, type_id=user_has_role}
             $res = $DB->query('SELECT ur.*, r.slug role_slug
                     FROM auth_permissions ur
