@@ -1,4 +1,5 @@
 <?php $user = $RouteHelper->Auth->getSessionUser() ?>
+
 <?php // $user = \CoreHelpers\User::getUser($RouteHelper->Auth, 'user1@operations', 'motdepasse', false) ?>
 
 <h1 class="page-header"><span class="glyphicon glyphicon-user"></span> Mon compte</h1>
@@ -12,20 +13,32 @@
     <dd><?= $user['last_name'] ?></dd>
     <dt>Etat du compte</dt>
     <dd>
-        <?php if ($user['is_active' ]) { ?>
+        <?php if ($user['is_active']) { ?>
             <span class="label label-success">actif</span>
         <?php } else { ?>
             <span class="label label-danger">inactif</span>
         <?php } ?>
     </dd>
-    <dt>Connexion <abbr title="Service Central d'Authentification">CAS</abbr></dt>
-    <dd>
-        <?php if ($RouteHelper->Auth->isLoggedUsingCas()) { ?>
-            <span class="label label-success">Oui</span>
-        <?php } else { ?>
-            <span class="label label-danger">Non</span>
-        <?php } ?>
-    </dd>
+    <?php if (!empty($RouteHelper->Auth->casUrl)): ?>
+        <dt>Connexion <abbr title="Service Central d'Authentification">CAS</abbr></dt>
+        <dd>
+            <?php if ($RouteHelper->Auth->isLoggedUsingCas()) { ?>
+                <span class="label label-success">Oui</span>
+            <?php } else { ?>
+                <span class="label label-danger">Non</span>
+            <?php } ?>
+        </dd>
+    <?php endif ?>
+    <?php if (!empty($RouteHelper->Auth->ldapUrl)): ?>
+        <dt>Connexion <abbr title="Avec l'Active Directory de Bixi">LDAP</abbr></dt>
+        <dd>
+            <?php if (!empty($user['used_ldap_auth'])) { ?>
+                <span class="label label-success">Oui</span>
+            <?php } else { ?>
+                <span class="label label-danger">Non</span>
+            <?php } ?>
+        </dd>
+    <?php endif ?>
 </dl>
 
 <h2>Permissions</h2>

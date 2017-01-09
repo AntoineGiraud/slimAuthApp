@@ -21,7 +21,10 @@ $app->get('/login', function ($request, $response, $args) {
 
     $token = $this->Auth->getTokenSlimCsrf($this, $request);
 
-    $casUrl = $this->get('settings')['Auth']['casUrl']."login?service=".urlencode($service);
+    if (!empty($this->get('settings')['Auth']['casUrl']))
+        $casUrl = $this->get('settings')['Auth']['casUrl']."login?service=".urlencode($service);
+    else
+        $casUrl = "";
     return $this->renderer->render($response, 'auth/connexion.php', compact('RouteHelper', 'token', 'casUrl', $args));
 })->add($container->get('csrf'))->setName('login');
 
@@ -59,6 +62,11 @@ $app->get('/logout', function ($request, $response, $args) {
 
 $app->get('/account', function ($request, $response, $args) {
     $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Vue compte');
+
+    if (!$this->Auth->fetchUserAuthLastDbVal()) {
+        $this->flash->addMessage('danger', 'Erreur authentification');
+        return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('login')."?errorLogin=1");
+    }
 
     $this->renderer->render($response, 'header.php', compact('RouteHelper', $args));
     $this->renderer->render($response, 'auth/account.php', compact('RouteHelper', $args));
@@ -261,6 +269,9 @@ $app->group('/auth', function () {
                 $this->logger->addInfo($msg);
                 $this->flash->addMessage('success', $msg);
                 echo $msg;
+
+                if ($_SESSION['Auth']['email'] == $userMail)
+                    $this->Auth->fetchUserAuthLastDbVal($post['email']);
             }
         }
         return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));

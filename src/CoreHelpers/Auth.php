@@ -179,6 +179,15 @@ class Auth {
 
     // --------------------  -------------------- //
     /** Récupère un champ de l'utilisateur */
+    function fetchUserAuthLastDbVal($mail=null) {
+        $mail = empty($mail)? $this->getSessionUserField('email') : $mail ;
+        $user = User::getUser($this, $mail, null, true);
+        if (empty($user))
+            return false;
+        foreach ($user as $key => $value)
+            $_SESSION['Auth'][$key] = $value;
+        return true;
+    }
     function getSessionUserField($field) {
         if (isset($_SESSION['Auth'][$field]))
             return $_SESSION['Auth'][$field];
