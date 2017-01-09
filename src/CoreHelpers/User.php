@@ -128,6 +128,24 @@ class User {
         return !empty($res)? true : false;
     }
 
+    public static function checkLdapPswd($mail, $pswd, $ldapUrl, $ldapPort=389) {
+        if (empty($ldapUrl) || empty($mail) || empty($pswd))
+            return false;
+        $ds = ldap_connect($ldapUrl, $ldapPort);
+        if (!$ds)
+            return false;
+
+        $user = substr($mail, 0, strpos($mail, '@')).'@'.$ldapUrl;
+
+        $ldapbind = ldap_bind($ds, $user, $pswd) ;
+        ldap_close($ds);
+
+        if ($ldapbind)
+            return true;
+        else
+            return false;
+    }
+
     /**
      * Récupération des informations d'un utilisateur
      * @param  String  $mail       email user
@@ -140,7 +158,7 @@ class User {
             global $settings;
             $user = null;
             foreach ($settings['settings']['Auth']['users'] as $u) {
-                if ($u['email'] == $mail && ( $u['password'] == $pswd || password_verify($pswd, $u['password']) || $ignorePswd)) {
+                if ($u['email'] == $mail && (self::checkLdapPswd($mail, $pswd, $Auth->ldapUrl) || $u['password'] == $pswd || password_verify($pswd, $u['password']) || $ignorePswd)) {
                     $user = $u;
                     $user['roles'] = $Auth->getRoles($user['roles']);
                     break;
@@ -152,7 +170,7 @@ class User {
             global $DB;
             // id, email, password, last_login, is_active, first_name, last_name, created_at, updated_at
             $user = $DB->queryFirst('SELECT * FROM auth_users WHERE email = :email', ['email'=>$mail]);
-            if (empty($user) || !$ignorePswd && ($user['password'] != $pswd && !password_verify($pswd, $user['password'])))
+            if (empty($user) || !$ignorePswd && ($user['password'] != $pswd && !password_verify($pswd, $user['password']) && !self::checkLdapPswd($mail, $pswd, $Auth->ldapUrl)))
                 return null; // On a pas le bon mot de passe
             // auth_permissions: {user_id, role_id, created_at, updated_at, type_id=user_has_role}
             $res = $DB->query('SELECT ur.*, r.slug role_slug

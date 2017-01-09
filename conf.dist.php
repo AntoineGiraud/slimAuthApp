@@ -30,6 +30,7 @@ return [
 
         'Auth' => [
             'casUrl' => 'https://cas.icam.fr/cas/',
+            'ldapUrl' => 'biximontreal.net',
             'sourceConfig' => 'database', // database or file
             // Pour la configuration avec une base de données, allez voir /db_creation/db_model.sql et /db_creation/db_value_sample.sql
             'allUserRole' => 'member',

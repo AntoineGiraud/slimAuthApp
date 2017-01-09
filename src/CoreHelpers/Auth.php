@@ -12,6 +12,7 @@ class Auth {
     public $permissions;
 
     public $casUrl;
+    public $ldapUrl;
     public $sourceConfig;
     public $allUserRole;
     public $baseAllowedPages;
@@ -19,6 +20,7 @@ class Auth {
     function __construct($AuthConfig, $DB) {
         $this->DB = $DB;
         $this->casUrl = !empty($AuthConfig['casUrl']) ? $AuthConfig['casUrl'] : null;
+        $this->ldapUrl = !empty($AuthConfig['ldapUrl']) ? $AuthConfig['ldapUrl'] : null;
         $this->sourceConfig = $AuthConfig['sourceConfig'];
         $this->allUserRole = $AuthConfig['allUserRole'];
         if ($this->sourceConfig == 'file') {
@@ -138,7 +140,10 @@ class Auth {
     function login($d) {
         $user = User::getUser($this, $d['email'], $d['password']);
         if (empty($user)) {
-            // $this->flash->addMessage('warning', "Vous n'avez pas les droits d'accéder au site.<br>Faites la demande aux responsables au besoin.");
+            $res = User::checkLdapPswd($d['email'], $d['password'], $this->ldapUrl);
+            if ($res) {
+                $this->flash->addMessage('warning', "Vos identifiants sont corrects mais vous n'avez pas les droits pour accéder au site.<br>Faites la demande aux responsables au besoin.");
+            }
             return false;
         } else if ($user['is_active'] == 1) { // si l'utilisateur est actif dans la BDD
             $_SESSION['Auth'] = array();
