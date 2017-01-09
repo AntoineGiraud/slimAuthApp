@@ -43,18 +43,6 @@ class Auth {
         }
 
         $this->routesSlim = null;
-        // var_dump($this->sourceConfig);
-        // var_dump($this->roles);
-        // var_dump($this->permissions);
-        // var_dump($this->permissions['forRole']);
-        // var_dump($this->baseAllowedPages);
-        // $moi = User::getUser('user1@operations', 'motdepasse', false);
-        // var_dump($moi);
-        // $moi = User::getUser('user2@entreprise', 'motdepasse', false);
-        // var_dump($moi);
-        // $moi = User::getUser('antoine.giraud@2015.icam.fr', 'motdepasse', false);
-        // var_dump($moi);
-        // die();
     }
     function setFlashCtrl($flash) {
         $this->flash = $flash;
@@ -71,7 +59,15 @@ class Auth {
                 if (!isset($u['id']))
                     $this->users[$k]['id'] = $k;
         }
+        $usrs=[];
+        foreach ($this->users as $key => $usr)
+            $usrs[$usr['id']] = $usr;
+        $this->users = $usrs;
         return $this->users;
+    }
+    public function userExists($userId) {
+        $users = $this->getUsers();
+        return !empty($users[$userId]) ? true : false;
     }
 
     public function fetchUsersInGroups($groups=null) {
