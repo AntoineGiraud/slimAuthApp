@@ -56,9 +56,11 @@ class RouteHelper {
         return $this->pageName . ' - ' . $this->webSiteTitle;
     }
 
-    public function showLinkLi($page, $label, $args=""){
+    public function showLinkLi($page, $label, $args="", $curPage=""){
+        if ($curPage != '/' && substr($curPage, 0, 1) == "/")
+            $curPage = substr($curPage, 1);
         if ($this->Auth->memberCanAccessPages($page)) {
-            return '<li><a href="'.$this->getPathFor($page) . $args.'">'.$label.'</a></li>';
+            return '<li'.($curPage == $page ?' class="active"':'').'><a href="'.$this->getPathFor($page) . $args.'">'.$label.'</a></li>';
         }
         return '';
     }

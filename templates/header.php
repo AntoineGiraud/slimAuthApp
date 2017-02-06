@@ -40,38 +40,38 @@
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li<?php if($RouteHelper->curPage == '/') echo ' class="active"'; ?>><a href="<?= $RouteHelper->getPathFor() ?>">Home</a></li>
-            <li<?php if($RouteHelper->curPage == 'about') echo ' class="active"'; ?>><a href="<?= $RouteHelper->getPathFor('about') ?>">A propos</a></li>
+            <?= $RouteHelper->showLinkLi('about', 'A propos', '', $RouteHelper->curPage) ?>
             <?php if ($Auth->memberCanAccessPages('operations/vue_operations', 'operations/vuePersoOperations')): ?>
-            <li class="dropdown">
+            <li class="dropdown <?= in_array($RouteHelper->curPage, ['operations/vue_operations', 'operations/vuePersoOperations']) ? 'active':'' ?>">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Opérations <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li class="dropdown-header">Liens pour les opérations</li>
-                <?= $RouteHelper->showLinkLi('operations/vue_operations', 'Vue opérations') ?>
+                <?= $RouteHelper->showLinkLi('operations/vue_operations', 'Vue opérations', '', $RouteHelper->curPage) ?>
                 <li role="separator" class="divider"></li>
-                <?= $RouteHelper->showLinkLi('operations/vuePersoOperations', 'Vue perso opérations', '?param=1') ?>
+                <?= $RouteHelper->showLinkLi('operations/vuePersoOperations', 'Vue perso opérations', '?param=1', $RouteHelper->curPage) ?>
               </ul>
             </li>
             <?php endif ?>
           </ul>
           <?php if ($Auth->isLogged()): ?>
-          <ul class="nav navbar-nav navbar-right">
-            <li><p class="navbar-text"><small><em><?= $Auth->getSessionUserField('prenom') ?></em></small></p></li>
-            <?php if ($Auth->memberCanAccessPages('account')): ?>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Compte<?= $Auth->isSuperAdmin()?'s':'' ?> <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <?= $RouteHelper->showLinkLi('account', '<span class="glyphicon glyphicon-user"></span> Mon compte') ?>
-                <?php if ($Auth->isSuperAdmin()): ?>
-                  <li role="separator" class="divider"></li>
-                  <li class="dropdown-header">Administration des utilisateurs</li>
-                  <?= $RouteHelper->showLinkLi('auth/list_droits', '<span class="glyphicon glyphicon-certificate"></span> Liste des droits') ?>
-                  <?= $RouteHelper->showLinkLi('auth/users/list', '<span class="glyphicon glyphicon-user"></span> Liste des utilisateurs') ?>
-                <?php endif ?>
-              </ul>
-            </li>
-            <?php endif ?>
-            <li><a href="<?= $RouteHelper->getPathFor('logout') ?>">Déconnexion</a></li>
-          </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><p class="navbar-text"><small><em><?= $Auth->getSessionUserField('first_name') ?></em> #<?= $Auth->getSessionUserField('id') ?></small></p></li>
+              <?php if ($Auth->memberCanAccessPages('account')): ?>
+              <li class="dropdown <?= in_array($RouteHelper->curPage, ['account', 'auth/list_droits', 'auth/users/list']) ? 'active':'' ?>">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Compte<?= $Auth->isSuperAdmin()?'s':'' ?> <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <?= $RouteHelper->showLinkLi('account', '<span class="glyphicon glyphicon-user"></span> Mon compte', '', $RouteHelper->curPage) ?>
+                  <?php if ($Auth->isSuperAdmin()): ?>
+                    <li role="separator" class="divider"></li>
+                    <li class="dropdown-header">Administration des utilisateurs</li>
+                    <?= $RouteHelper->showLinkLi('auth/list_droits', '<span class="glyphicon glyphicon-certificate"></span> Liste des droits', '', $RouteHelper->curPage) ?>
+                    <?= $RouteHelper->showLinkLi('auth/users/list', '<span class="glyphicon glyphicon-user"></span> Liste des utilisateurs', '', $RouteHelper->curPage) ?>
+                  <?php endif ?>
+                </ul>
+              </li>
+              <?php endif ?>
+              <li><a href="<?= $RouteHelper->getPathFor('logout') ?>">Déconnexion</a></li>
+            </ul>
           <?php endif ?>
         </div><!-- /.nav-collapse -->
       </div><!-- /.container -->
