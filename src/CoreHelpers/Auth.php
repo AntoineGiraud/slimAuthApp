@@ -311,6 +311,36 @@ class Auth {
                     return false;
         return true;
     }
+    /**
+     * Est ce que l'utilisateur ne peut pas accéder à au moins une des pages ?
+     * @return Array  Liste de pages à valider
+     */
+    function memberCanNOTAccessPages() {
+        $pages = func_get_args();
+        $user = $this->getSessionUser();
+        if ($this->isSuperAdmin())
+            return false;
+        else
+            foreach ($pages as $page)
+                if (self::pageInArray($page, $user['restrictions']))
+                    return true;
+        return false;
+    }
+    /**
+     * Est ce que l'utilisateur ne peut pas accéder à absolument toutes les pages ?
+     * @return Array  Liste de pages à valider
+     */
+    function memberCanNOTAccessAllPages() {
+        $pages = func_get_args();
+        $user = $this->getSessionUser();
+        if ($this->isSuperAdmin())
+            return false;
+        else
+            foreach ($pages as $page)
+                if (!self::pageInArray($page, $user['restrictions']))
+                    return false;
+        return true;
+    }
 
     public function setSlimRoutes($slimApp) {
         $this->routesSlim = [];

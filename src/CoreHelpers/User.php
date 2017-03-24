@@ -20,6 +20,7 @@ class User {
             'updated_at' => '',
             'roles' => [],
             'userPermissions' => '',
+            'restrictions' => [],
             'permissions' => []
         ];
         if ($val != "pasDeValeurParDefaut")
@@ -198,17 +199,22 @@ class User {
         }
         // Récupérer les permissions de l'utilisateur
         $user['userPermissions'] = !empty($Auth->permissions['forUser'][$user['email']]) ? $Auth->permissions['forUser'][$user['email']] : null;
+        $user['restrictions'] = [];
         $user['permissions'] = $Auth->baseAllowedPages;
-        if (!empty($user['userPermissions']))
+        if (!empty($user['userPermissions']) && !empty($user['userPermissions']['allowed']))
             $user['permissions'] = $user['userPermissions']['allowed'];
+        if (!empty($user['userPermissions']) && !empty($user['userPermissions']['not_allowed']))
+            $user['restrictions'] = $user['userPermissions']['not_allowed'];
         if (!empty($user['roles'])) {
             foreach ($user['roles'] as $role) {
-                $rolePermissions = $role['permissions']['allowed'];
-                if (empty($rolePermissions))
-                    continue;
-                foreach ($rolePermissions as $ok)
-                    if (!in_array($ok, $user['permissions']))
-                        $user['permissions'][] = $ok;
+                if (!empty($role['permissions']['allowed']))
+                    foreach ($role['permissions']['allowed'] as $ok)
+                        if (!in_array($ok, $user['permissions']))
+                            $user['permissions'][] = $ok;
+                if (!empty($role['permissions']['not_allowed']))
+                    foreach ($role['permissions']['not_allowed'] as $ok)
+                        if (!in_array($ok, $user['permissions']))
+                            $user['restrictions'][] = $ok;
             }
         }
         if ($removePswd)
