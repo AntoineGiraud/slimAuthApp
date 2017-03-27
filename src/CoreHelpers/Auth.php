@@ -290,6 +290,8 @@ class Auth {
         $user = $this->getSessionUser();
         if ($this->isSuperAdmin())
             return true;
+        else if (empty($user['permissions']))
+            return false;
         else
             foreach ($pages as $page)
                 if (self::pageInArray($page, $user['permissions']))
@@ -305,6 +307,8 @@ class Auth {
         $user = $this->getSessionUser();
         if ($this->isSuperAdmin())
             return true;
+        else if (empty($user['permissions']))
+            return false;
         else
             foreach ($pages as $page)
                 if (!self::pageInArray($page, $user['permissions']))
@@ -318,7 +322,7 @@ class Auth {
     function memberCanNOTAccessPages() {
         $pages = func_get_args();
         $user = $this->getSessionUser();
-        if ($this->isSuperAdmin())
+        if ($this->isSuperAdmin() || empty($user['restrictions']))
             return false;
         else
             foreach ($pages as $page)
@@ -333,7 +337,7 @@ class Auth {
     function memberCanNOTAccessAllPages() {
         $pages = func_get_args();
         $user = $this->getSessionUser();
-        if ($this->isSuperAdmin())
+        if ($this->isSuperAdmin() || empty($user['restrictions']))
             return false;
         else
             foreach ($pages as $page)
