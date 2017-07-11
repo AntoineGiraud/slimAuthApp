@@ -35,8 +35,8 @@ class Auth {
             $this->permissions = self::loadPermissionsFromDB();
         } else
             throw new \Exception("Base de données inaccessible, vérifiez la configuration du site web ...", 1);
-        $this->baseAllowedPages = !empty($Auth->permissions['forRole'][$this->allUserRole])
-                                ? $Auth->permissions['forRole'][$this->allUserRole]['allowed']
+        $this->baseAllowedPages = !empty($this->permissions['forRole'][$this->allUserRole])
+                                ? $this->permissions['forRole'][$this->allUserRole]['allowed']
                                 : ['/', 'about', 'login', 'logout', 'account'];
         // consolider les roles de leurs permissions
         $this->roles = [];
@@ -250,9 +250,9 @@ class Auth {
      * @param  String    $role     Un rôle
      * @return boolean
      */
-    function hasRole($role) {
+    function hasRole($role, $trueCheck=false) {
         $user = $this->getSessionUser();
-        if ($this->isSuperAdmin())
+        if ($this->isSuperAdmin() && !$trueCheck)
             return true;
         else if (!empty($user['roles']) && array_key_exists($role, $user['roles']))
             return true;

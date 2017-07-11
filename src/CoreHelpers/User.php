@@ -202,9 +202,13 @@ class User {
         $user['restrictions'] = [];
         $user['permissions'] = $Auth->baseAllowedPages;
         if (!empty($user['userPermissions']) && !empty($user['userPermissions']['allowed']))
-            $user['permissions'] = $user['userPermissions']['allowed'];
+            foreach ($user['userPermissions']['allowed'] as $ok)
+                if (!in_array($ok, $user['permissions']))
+                    $user['permissions'][] = $ok;
         if (!empty($user['userPermissions']) && !empty($user['userPermissions']['not_allowed']))
-            $user['restrictions'] = $user['userPermissions']['not_allowed'];
+            foreach ($role['userPermissions']['not_allowed'] as $ok)
+                if (!in_array($ok, $user['permissions']) && !in_array($ok, $user['restrictions']))
+                    $user['restrictions'][] = $ok;
         if (!empty($user['roles'])) {
             foreach ($user['roles'] as $role) {
                 if (!empty($role['permissions']['allowed']))
@@ -213,7 +217,7 @@ class User {
                             $user['permissions'][] = $ok;
                 if (!empty($role['permissions']['not_allowed']))
                     foreach ($role['permissions']['not_allowed'] as $ok)
-                        if (!in_array($ok, $user['permissions']))
+                        if (!in_array($ok, $user['permissions']) && !in_array($ok, $user['restrictions']))
                             $user['restrictions'][] = $ok;
             }
         }
