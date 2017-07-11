@@ -92,9 +92,9 @@
     </div>
     <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
-            <button class="btn btn-primary" type="submit">Save changes</button>
+            <button class="btn btn-primary" type="submit">Enregistrer</button>
             &nbsp;
-            <button class="btn btn-default" type="reset">Cancel</button>
+            <button class="btn btn-default" type="reset">Annuler</button>
         </div>
     </div>
 </form>

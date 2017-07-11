@@ -259,6 +259,23 @@ class Auth {
         else
             return false;
     }
+    /**
+     * Est ce que l'utilisateur a tous les roles passés ? Si superadmin, on bypass !
+     * @param  Array    $roles     tableau de roles
+     * @return boolean
+     */
+    function hasRoles($roles) {
+        $user = $this->getSessionUser();
+        if ($this->isSuperAdmin())
+            return true;
+        else if (!empty($user['roles'])) {
+            foreach ($roles as $role)
+                if (!array_key_exists($role, $user['roles']))
+                    return false;
+            return true;
+        } else
+            return false;
+    }
 
     /**
      * est ce que la page est dans le tableau de page passé ?
