@@ -74,6 +74,32 @@
                     <p class="alert alert-warning"><?= $ErrorsCtrl->errors['password']['msg'] ?></p>
                 </div>
             <?php endif ?>
+            <?php if (!empty($RouteHelper->conf['Auth']['ldapUrl'])): ?>
+                <div class="form-group ">
+                    <label class="col-sm-2 control-label" for="inputldapOnly">LDAP uniquement :</label>
+                    <div class="col-sm-10">
+                        <div class="checkbox">
+                            <label>
+                                <input name="ldapOnly" type="hidden" value="0">
+                                <input name="ldapOnly" id="inputldapOnly" type="checkbox" <?= !empty($user['ldap_only'])?'checked="checked"':'' ?> value="1">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            <?php endif ?>
+            <?php if (!empty($RouteHelper->conf['Auth']['casUrl'])): ?>
+                <div class="form-group ">
+                    <label class="col-sm-2 control-label" for="inputcasOnly">CAS uniquement :</label>
+                    <div class="col-sm-10">
+                        <div class="checkbox">
+                            <label>
+                                <input name="casOnly" type="hidden" value="0">
+                                <input name="casOnly" id="inputcasOnly" type="checkbox" <?= !empty($user['cas_only'])?'checked="checked"':'' ?> value="1">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            <?php endif ?>
             <div class="pass">
                 <div class="form-group <?= $ErrorsCtrl->hasError('password')?'has-error':'' ?>">
                     <label class="col-sm-2 control-label" for="inputpass_new">Nouveau mot de passe :</label>

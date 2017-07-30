@@ -220,6 +220,8 @@ class User {
                             $user['restrictions'][] = $ok;
             }
         }
+        $user['ldap_only'] = $user['password'] == "ldap_only";
+        $user['cas_only'] = $user['password'] == "cas_only";
         if ($removePswd)
             unset($user['password']);
         if ($ldapAuthValid)

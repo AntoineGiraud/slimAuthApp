@@ -53,19 +53,13 @@ class ErrorsController {
                 $nouveau = (!empty($data[$validate['fields']['nouveau']])) ? $data[$validate['fields']['nouveau']]:'';
                 $confirmation = (!empty($data[$validate['fields']['confirmation']])) ? $data[$validate['fields']['confirmation']]:'';
                 $ancien = (!empty($data[$validate['fields']['ancien']['field']])) ? $data[$validate['fields']['ancien']['field']]:'';
-                if (!$validate['canBeSkiped'] && (empty($nouveau) || empty($confirmation)
-                        || ( !empty($validate['fields']['ancien']) && empty($ancien) )
-                )) {
+                if (!$validate['canBeSkiped'] && (empty($nouveau) || empty($confirmation) || ( !empty($validate['fields']['ancien']) && empty($ancien) ) )) {
                     $this->addError('password', $validate['msg']);
                 } else if (!empty($nouveau) || !empty($confirmation)) {
-                    if ($nouveau != $confirmation) {
+                    if ($nouveau != $confirmation)
                         $this->addError('password', $validate['msg']);
-                    }
-                    if (!empty($validate['fields']['ancien']['field']) && ( empty($ancien)
-                            || (!empty($ancien) && $ancien != $validate['fields']['ancien']['hash'] && !password_verify($ancien, $validate['fields']['ancien']['hash']))
-                    )) {
+                    if (!empty($validate['fields']['ancien']['field']) && ( empty($ancien) || (!empty($ancien) && !password_verify($ancien, $validate['fields']['ancien']['hash'])) ))
                         $this->addError('password_ancien', "Merci de donner aussi l'ancien mot de passe");
-                    }
                 }
             } else if (!isset($data[$key])) {
                 $this->addError($key, 'Champ manquant');

@@ -216,13 +216,23 @@ $app->group('/auth', function () {
             $curUser = null;
             $pswdAncienValidate = null;
         }
+        $canBeSkiped = !empty($post['id']);
+        if (!empty($post['casOnly'])) {
+            $post['password'] = $post['password_confirm'] = 'cas_only';
+            $canBeSkiped = true;
+        }
+        if (!empty($post['ldapOnly'])) {
+            $post['password'] = $post['password_confirm'] = 'ldap_only';
+            $canBeSkiped = true;
+        }
+
         $validate = [
             'first_name'=> array('rule'=>'notEmpty', 'msg' => 'Entrez votre prénom'),
             'last_name' => array('rule'=>'notEmpty', 'msg' => 'Entrez votre nom'),
             'email'     => array('rule'=>'email',    'msg' => 'Entrez un email valide'),
             'password'  => array('rule'=>'password', 'msg' => 'Les mots de passe ne concordent pas !',
                                  'fields'=>['nouveau'=>'password', 'confirmation'=>'password_confirm', 'ancien'=>$pswdAncienValidate],
-                                 'canBeSkiped'=>!empty($post['id']))
+                                 'canBeSkiped'=>$canBeSkiped)
         ];
 
         $ErrorsCtrl = new \CoreHelpers\ErrorsController($validate);
@@ -251,12 +261,12 @@ $app->group('/auth', function () {
         } else { // On a effectué toutes les vérifications
             if (empty($post['password']))
                 unset($post['password']);
-            else
+            else if (!in_array($post['password'], ['cas_only', 'ldap_only']))
                 $post['password'] = password_hash($post['password'], PASSWORD_BCRYPT);
             // var_dump($post);
             $usrId = $post['id'];
             $rolesSlug = array_keys($post['roles']);
-            unset($post['id'], $post['password_confirm'], $post['csrf_name'], $post['csrf_value']);
+            unset($post['id'], $post['password_confirm'], $post['csrf_name'], $post['csrf_value'], $post['casOnly'], $post['ldapOnly']);
             if (empty($usrId)) {
                 $usrId = \CoreHelpers\User::insert($post);
                 $msg = "Ajout d'un utilisateur #".$usrId." : ".$post['email'].' - '.json_encode($rolesSlug);
@@ -265,6 +275,12 @@ $app->group('/auth', function () {
                 echo $msg;
             } else {
                 $msg = "MAJ utilisateur #".$usrId." : ".$post['email'].' - '.json_encode($rolesSlug);
+                if ((empty($RouteHelper->conf['Auth']['ldapUrl']) && empty($post['password']) && empty($curUser['casOnly']) && $curUser['password']=='ldap_only')
+                    || (empty($RouteHelper->conf['Auth']['casUrl']) && empty($post['password']) && empty($curUser['ldapOnly']) && $curUser['password']=='cas_only')) {
+                    $ErrorsCtrl->addError('password', 'Veuillez mettre à jour la configuration du mot de passe.');
+                    $_SESSION['errorForm'] = ['Errors' => $ErrorsCtrl, 'curForm' => $post];
+                    return $RouteHelper->returnWithFlash('auth/users/edit'.'/'.$usrId, 'Veuillez mettre à jour la configuration du mot de passe.', 'warning');
+                }
                 \CoreHelpers\User::update($usrId, $post, $curUser);
                 $this->logger->addInfo($msg);
                 $this->flash->addMessage('success', $msg);
