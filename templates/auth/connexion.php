@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title><?= $RouteHelper->getPageTitle() ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="VisuLignes RTL - Connexion">
+    <meta name="description" content="<?= $RouteHelper->getPageTitle() ?>">
     <meta name="author" content="Antoine Giraud">
     <link rel="shortcut icon" href="<?= $RouteHelper->publicPath ?>/img/favicon.png">
 

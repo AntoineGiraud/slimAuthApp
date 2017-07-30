@@ -1,7 +1,7 @@
 {
-    "name": "PolyMtl/VisuLignesRTL",
-    "description": "A web app to visualize the RTL bus Network.",
-    "keywords": ["PolyMtl", "RTL", "VisuLignes"],
+    "name": "AntoineGiraud/slimAuthApp",
+    "description": "A slim web app to be the base of a website with an Authentification module already coded.",
+    "keywords": ["Slim", "PHP", "Authentification", "web app"],
     "type": "project",
     "authors": [
         {
