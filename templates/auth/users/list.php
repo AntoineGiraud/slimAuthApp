@@ -55,3 +55,7 @@
     <?php endforeach ?>
     </tbody>
 </table>
+<div class="alert alert-info">
+Pour que les modifications soient portées sur le compte d'un usager, celui-ci doit :
+<ul><li>aller à la page <a href="<?= $RouteHelper->getPathFor('account') ?>"><em>mon compte</em></a></li><li><strong>ou</strong> se reconnecter</li></ul>
+</div>
