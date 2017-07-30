@@ -133,7 +133,7 @@ $app->group('/auth', function () {
                 return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
             } else {
                 \CoreHelpers\User::deleteUser($id);
-                $msg = "Suppression utilisateur #".$v." : ".$userMail;
+                $msg = "Suppression utilisateur #".$id." : ".$userMail;
                 $this->logger->addInfo($msg);
                 $this->flash->addMessage('success', $msg);
                 return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
