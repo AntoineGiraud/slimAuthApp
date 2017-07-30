@@ -12,7 +12,7 @@
 
     <meta name="description" content="<?= $RouteHelper->getPageTitle() ?>">
     <meta name="author" content="Antoine Giraud">
-    <link rel="shortcut icon" href="<?= $RouteHelper->publicUrl ?>/img/favicon.ico">
+    <link rel="shortcut icon" href="<?= $RouteHelper->publicUrl ?>/img/favicon.png">
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <link href="http://getbootstrap.com/assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">

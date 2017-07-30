@@ -10,6 +10,7 @@ INSERT INTO `auth_users` (`id`, `email`, `password`, `first_name`, `last_name`, 
 (2, 'user1@operations', 'motdepasse', 'user 1', 'User', 1),
 (3, 'user2@entreprise', 'motdepasse', 'user 2', 'User', 1),
 (4, 'horsligne@entreprise', 'motdepasse', 'horsligne', 'User', 0);
+-- valeurs limitantes possibles pour password : cas_only OR ldap_only
 
 INSERT INTO `auth_roles` (`id`, `slug`, `name`) VALUES
 (1, 'superadmin', 'Super administrateur'),
