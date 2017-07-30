@@ -1,6 +1,14 @@
 <dl class="dl-horizontal">
     <dt>Configuration :</dt>
     <dd><?= $RouteHelper->Auth->sourceConfig == 'file' ? 'fichier' : 'base de données' ?></dd>
+    <?php if (!empty($RouteHelper->conf['Auth']['ldapUrl'])): ?>
+        <dt>ldap url</dt>
+        <dd><em><?= $RouteHelper->conf['Auth']['ldapUrl'] ?></em></dd>
+    <?php endif ?>
+    <?php if (!empty($RouteHelper->conf['Auth']['casUrl'])): ?>
+        <dt>cas url</dt>
+        <dd><em><?= $RouteHelper->conf['Auth']['casUrl'] ?></em></dd>
+    <?php endif ?>
 </dl>
 
 <h1 class="page-header"><span class="glyphicon glyphicon-certificate"></span> Liste des droits</h1>
