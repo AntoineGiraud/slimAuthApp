@@ -10,7 +10,7 @@
     <link href="<?= $RouteHelper->publicUrl ?>css/main.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="<?= $RouteHelper->publicUrl ?>css/imprimante.css" media="print" />
 
-    <meta name="description" content="VisuLignes - Connexion">
+    <meta name="description" content="<?= $RouteHelper->getPageTitle() ?>">
     <meta name="author" content="Antoine Giraud">
     <link rel="shortcut icon" href="<?= $RouteHelper->publicUrl ?>/img/favicon.ico">
 

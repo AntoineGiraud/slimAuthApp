@@ -5,7 +5,7 @@
 <?php endif ?>
 
 <h1 class="page-header clearfix">
-    <div class="pull-left"><span class="glyphicon glyphicon-tower"></span> <?= $RouteHelper->pageName ?> </div>
+    <div class="pull-left"><span class="glyphicon glyphicon-tower"></span> <?= 'Editer utilisateur <small>#'.$user['id'].'</small>' ?> </div>
     <div class="pull-right">
         <a href="<?= $RouteHelper->getPathFor('auth/users/add') ?>" class="btn btn-info">Ajouter</a>
         <a href="<?= $RouteHelper->getPathFor('auth/users/list') ?>" class="btn btn-primary" onlick="">Retour liste</a>

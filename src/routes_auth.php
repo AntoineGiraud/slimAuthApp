@@ -177,7 +177,7 @@ $app->group('/auth', function () {
         }
 
         $user = \CoreHelpers\User::getUser($this->Auth, $userMail, null, true);
-        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Editer utilisateur <small>#'.$id.'</small>');
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Editer utilisateur #'.$id.'');
 
         $token = $this->Auth->getTokenSlimCsrf($this, $request);
 

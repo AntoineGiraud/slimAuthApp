@@ -71,17 +71,16 @@ class User {
         if (!empty($setSql))
             $DB->query("UPDATE `auth_users` SET $setSql WHERE `auth_users`.`id` = ".(int)$id, $data);
 
-        // Maj des roles: on supprime tout et on rajoute les nouveaux
+        // Maj des roles: si nouveau, on supprime tout et on rajoute les rôles
         $valuesRole = [];
-        $update = count($userRoles) != count($curUsr['roles']);
+        $updateRole = count($userRoles) != count($curUsr['roles']);
         foreach ($userRoles as $role) {
-            if (isset($curUsr['roles'][$role['slug']]))
-                continue;
+            if (!isset($curUsr['roles'][$role['slug']]))
+                $updateRole = true;
             $valuesRole[] = '('.(int)$id.', '.(int)$role['id'].', 3)'; // user_has_role = 3
-            $update = true;
         }
 
-        if ($update)
+        if ($updateRole)
             $DB->query('DELETE FROM auth_permissions WHERE type_id = 3 AND user_id = :id', ['id' => $id]);
         if (!empty($valuesRole))
             $DB->query("INSERT INTO auth_permissions (user_id, role_id, type_id) VALUES ".implode(', ', $valuesRole));
