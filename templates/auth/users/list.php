@@ -18,6 +18,12 @@
             <th>prenom</th>
             <th>nom</th>
             <th>roles</th>
+            <?php if (!empty($RouteHelper->conf['Auth']['casUrl'])): ?>
+                <th>cas<br>only</th>
+            <?php endif ?>
+            <?php if (!empty($RouteHelper->conf['Auth']['ldapUrl'])): ?>
+                <th>ldap<br>only</th>
+            <?php endif ?>
             <th>actions</th>
         </tr>
     </thead>
@@ -29,6 +35,16 @@
             <td><?= $user['first_name'] ?></td>
             <td><?= $user['last_name'] ?></td>
             <td><?= ((!empty($user['roles']) && in_array('superadmin', $user['roles'])) ? '<span class="glyphicon glyphicon-king"></span>' : '') . ' ' .implode(', ', $user['roles']) ?></td>
+            <?php if (!empty($RouteHelper->conf['Auth']['casUrl'])): ?>
+                <td><?php if (!empty($user['cas_only'])): ?>
+                    <span class="glyphicon glyphicon-lock"></span>
+                <?php endif ?></td>
+            <?php endif ?>
+            <?php if (!empty($RouteHelper->conf['Auth']['ldapUrl'])): ?>
+                <td><?php if (!empty($user['ldap_only'])): ?>
+                    <span class="glyphicon glyphicon-lock"></span>
+                <?php endif ?></td>
+            <?php endif ?>
             <td>
                 <div class="pull-right">
                   <a href="<?= $RouteHelper->getPathFor('auth/users/edit/'.$user['id']) ?>" title="Editer l'utilisateur #<?= $user['id']; ?>"><i class="glyphicon glyphicon-pencil"></i></a>

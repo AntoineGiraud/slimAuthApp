@@ -82,7 +82,7 @@ class User {
 
         if ($updateRole)
             $DB->query('DELETE FROM auth_permissions WHERE type_id = 3 AND user_id = :id', ['id' => $id]);
-        if (!empty($valuesRole))
+        if ($updateRole && !empty($valuesRole))
             $DB->query("INSERT INTO auth_permissions (user_id, role_id, type_id) VALUES ".implode(', ', $valuesRole));
     }
     public static function replaceRoles($id, $roles) {
@@ -110,6 +110,8 @@ class User {
                 $users[$k]['roles'] = $usersHasRole[$u['email']];
             else
                 $users[$k]['roles'] = [];
+            $users[$k]['ldap_only'] = $u['password'] == "ldap_only";
+            $users[$k]['cas_only'] = $u['password'] == "cas_only";
         }
         return $users;
     }

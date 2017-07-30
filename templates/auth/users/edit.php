@@ -76,12 +76,12 @@
             <?php endif ?>
             <?php if (!empty($RouteHelper->conf['Auth']['ldapUrl'])): ?>
                 <div class="form-group ">
-                    <label class="col-sm-2 control-label" for="inputldapOnly">LDAP uniquement :</label>
+                    <label class="col-sm-2 control-label" for="inputldap_only">LDAP uniquement :</label>
                     <div class="col-sm-10">
                         <div class="checkbox">
                             <label>
-                                <input name="ldapOnly" type="hidden" value="0">
-                                <input name="ldapOnly" id="inputldapOnly" type="checkbox" <?= !empty($user['ldap_only'])?'checked="checked"':'' ?> value="1">
+                                <input name="ldap_only" type="hidden" value="0">
+                                <input name="ldap_only" id="inputldap_only" type="checkbox" <?= !empty($user['ldap_only'])?'checked="checked"':'' ?> value="1">
                             </label>
                         </div>
                     </div>
@@ -89,12 +89,12 @@
             <?php endif ?>
             <?php if (!empty($RouteHelper->conf['Auth']['casUrl'])): ?>
                 <div class="form-group ">
-                    <label class="col-sm-2 control-label" for="inputcasOnly">CAS uniquement :</label>
+                    <label class="col-sm-2 control-label" for="inputcas_only">CAS uniquement :</label>
                     <div class="col-sm-10">
                         <div class="checkbox">
                             <label>
-                                <input name="casOnly" type="hidden" value="0">
-                                <input name="casOnly" id="inputcasOnly" type="checkbox" <?= !empty($user['cas_only'])?'checked="checked"':'' ?> value="1">
+                                <input name="cas_only" type="hidden" value="0">
+                                <input name="cas_only" id="inputcas_only" type="checkbox" <?= !empty($user['cas_only'])?'checked="checked"':'' ?> value="1">
                             </label>
                         </div>
                     </div>
