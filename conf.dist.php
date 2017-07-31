@@ -17,7 +17,7 @@ return [
             'path' => __DIR__ . '/logs/app.log'
         ],
 
-        'public_url' => '/simpleSlimAppWithAuthentification/public/',
+        'public_url' => '/slimAuthApp/public/',
         'public_path' => 'public/',
         'webSiteTitle' => 'SlimAuthApp',
 
