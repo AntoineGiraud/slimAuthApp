@@ -6,16 +6,12 @@
 $app->get('/login', function ($request, $response, $args) {
     $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Login');
     $service = $RouteHelper->curPageBaseUrl. '/login';
-
     // Connexion via le CAS
     if (!empty($request->getParam('ticket'))) {
         if ($this->Auth->loginUsingCas($request->getParam('ticket'), $service)) {
-            $this->flash->addMessage('success', "Vous avez bien été authentifié avec le serveur CAS");
-            return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
-        } else
-            return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('login'));
+            return $RouteHelper->returnWithFlash('', "Vous avez bien été authentifié avec le serveur CAS", 'success');
+        } else return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('login'));
     }
-
     if ($this->Auth->isLogged())
         $this->flash->addMessage('info', 'Vous êtes déjà authentifés ! <a class="btn btn-sm btn-primary" href="'.$this->router->pathFor('home').'">Retour à l\'accueil</a>');
 
@@ -23,50 +19,34 @@ $app->get('/login', function ($request, $response, $args) {
 
     if (!empty($this->get('settings')['Auth']['casUrl']))
         $casUrl = $this->get('settings')['Auth']['casUrl']."login?service=".urlencode($service);
-    else
-        $casUrl = "";
+    else $casUrl = "";
     return $this->renderer->render($response, 'auth/connexion.php', compact('RouteHelper', 'token', 'casUrl', $args));
 })->add($container->get('csrf'))->setName('login');
 
 $app->post('/login', function ($request, $response, $args) {
     $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Login');
-
-    if(!empty($_POST['email']) && !empty($_POST['password'])){
-        if($this->Auth->login($_POST)){
-            $this->flash->addMessage('success', 'Vous êtes maintenant connecté');
-            return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
-        } else {
-            $this->flash->addMessage('danger', 'Identifiants incorects');
-            return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('login')."?errorLogin=1");
-        }
-    } else if (!empty($_POST)) { // Si l'utilisateur n'a pas rempli tous les champs demandés
-        $this->flash->addMessage('danger', 'Veuillez remplir tous vos champs');
-        return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('login')."?errorLogin=1");
-    }
-
-    return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
+    if (!empty($_POST['email']) && !empty($_POST['password'])) {
+        if ($this->Auth->login($_POST))
+            return $RouteHelper->returnWithFlash('', "Vous êtes maintenant connecté", 'success');
+        else return $RouteHelper->returnWithFlash('login'.'?errorLogin=1', "Identifiants incorects", 'danger');
+    } else if (!empty($_POST))
+        return $RouteHelper->returnWithFlash('login'.'?errorLogin=1', "Veuillez remplir tous vos champs", 'danger');
+    else return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
 })->add($container->get('csrf'));
 
 $app->get('/logout', function ($request, $response, $args) {
     $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'logout');
-    if($this->Auth->isLoggedUsingCas()) {
-        $service = $RouteHelper->curPageBaseUrl. '/login';
-        $casUrl = $this->get('settings')['Auth']['casUrl']."logout?url=".urlencode($service);
-        session_destroy();
-        return $response->withStatus(303)->withHeader('Location', $casUrl);
-    } else {
-        session_destroy();
-        return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
-    }
+    if ($this->Auth->isLoggedUsingCas())
+        $url = $this->get('settings')['Auth']['casUrl']."logout?url=".urlencode($RouteHelper->curPageBaseUrl. '/login');
+    else $url = $this->router->pathFor('home');
+    session_destroy();
+    return $response->withStatus(303)->withHeader('Location', $url);
 })->setName('logout');
 
 $app->get('/account', function ($request, $response, $args) {
     $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Vue compte');
-
-    if (!$this->Auth->fetchUserAuthLastDbVal()) {
-        $this->flash->addMessage('danger', 'Erreur authentification');
-        return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('login')."?errorLogin=1");
-    }
+    if (!$this->Auth->fetchUserAuthLastDbVal())
+        return $RouteHelper->returnWithFlash('login'.'?errorLogin=1', "Erreur authentification", 'danger');
 
     $this->renderer->render($response, 'header.php', compact('RouteHelper', $args));
     $this->renderer->render($response, 'auth/account.php', compact('RouteHelper', $args));
@@ -85,8 +65,8 @@ $app->group('/auth', function () {
         $this->renderer->render($response, 'auth/list_droits.php', compact('RouteHelper', 'users', $args));
         return $this->renderer->render($response, 'footer.php', compact('RouteHelper', $args));
     })->setName('auth/list_droits');
-  $this->group('/users', function () {
 
+  $this->group('/users', function () {
     $this->get('/list', function ($request, $response, $args) {
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Liste des utilisateurs');
 
@@ -122,21 +102,17 @@ $app->group('/auth', function () {
         $token_name = $args['token_name'];
         $token_value = $args['token_value'];
 
-        if (!$this->csrf->validateToken($token_name, $token_value)) {
-            // var_dump($request->getAttribute('csrf_status'));
-            $this->flash->addMessage('danger', "<strong>Attention !</strong> Mauvais ticket pour supprimer cet utilisateur.");
-            return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
-        } else {
+        if (!$this->csrf->validateToken($token_name, $token_value))
+            return $RouteHelper->returnWithFlash('auth/users/list', "<strong>Attention !</strong> Mauvais ticket pour supprimer cet utilisateur.", 'danger');
+        else {
             $userMail = \CoreHelpers\User::getMailFromId($id);
-            if (empty($userMail)) {
-                $this->flash->addMessage('warning', "Utilisateur #$id inconnu.");
-                return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
-            } else {
+            if (empty($userMail))
+                return $RouteHelper->returnWithFlash('auth/users/list', "Utilisateur #$id inconnu.", 'warning');
+            else {
                 \CoreHelpers\User::deleteUser($id);
                 $msg = "Suppression utilisateur #".$id." : ".$userMail;
                 $this->logger->addInfo($msg);
-                $this->flash->addMessage('success', $msg);
-                return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
+                return $RouteHelper->returnWithFlash('auth/users/list', $msg, 'success');
             }
         }
     })->setName('auth/users/delete');
@@ -171,10 +147,8 @@ $app->group('/auth', function () {
         $flash = $this->flash;
         $id = (int)$args['id'];
         $userMail = \CoreHelpers\User::getMailFromId($id);
-        if (empty($userMail)) {
-            $this->flash->addMessage('warning', "Utilisateur #$id inconnu.");
-            return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
-        }
+        if (empty($userMail))
+            return $RouteHelper->returnWithFlash('auth/users/list', "Utilisateur #$id inconnu.", 'warning');
 
         $user = \CoreHelpers\User::getUser($this->Auth, $userMail, null, true);
         $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Editer utilisateur #'.$id.'');
@@ -202,10 +176,8 @@ $app->group('/auth', function () {
         // var_dump($post);
 
         $userMail = (empty($post['id'])) ? '' : \CoreHelpers\User::getMailFromId($post['id']);
-        if (!empty($post['id']) && empty($userMail)) {
-            $this->flash->addMessage('warning', "Utilisateur #".$post['id']." inconnu.");
-            return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
-        }
+        if (!empty($post['id']) && empty($userMail))
+            return $RouteHelper->returnWithFlash('auth/users/list', "Utilisateur #$id inconnu.", 'warning');
 
         // Validation formulaire (ajoute ou mise à jour)
         // $userFields = array_keys(\CoreHelpers\User::getBlankFields());
@@ -251,13 +223,11 @@ $app->group('/auth', function () {
 
         if ($ErrorsCtrl->hasError) { // On a trouvé une erreur, on redirige !
             $_SESSION['errorForm'] = ['Errors' => $ErrorsCtrl, 'curForm' => $post];
-            if (empty($post['id'])) { // Si on était en train d'ajouter une personne
-                $this->flash->addMessage('warning', $ErrorsCtrl->hasError." erreur".($ErrorsCtrl->hasError==1?'':'s')." dans le formlaire");
-                return $response->withHeader('Location', $RouteHelper->getPathFor('auth/users/add'));
-            } else {
-                $this->flash->addMessage('warning', $ErrorsCtrl->hasError." erreur".($ErrorsCtrl->hasError==1?'':'s')." dans le formulaire");
-                return $response->withHeader('Location', $RouteHelper->getPathFor('auth/users/edit').'/'.$post['id']);
-            }
+            $msg = $ErrorsCtrl->hasError." erreur".($ErrorsCtrl->hasError==1?'':'s')." dans le formlaire";
+            if (empty($post['id'])) // Si ajout une personne
+                return $RouteHelper->returnWithFlash('auth/users/add', $msg, 'warning');
+            else
+                return $RouteHelper->returnWithFlash('auth/users/edit/'.$post['id'], $msg, 'warning');
         } else { // On a effectué toutes les vérifications
             if (empty($post['password']))
                 unset($post['password']);
@@ -295,6 +265,5 @@ $app->group('/auth', function () {
         }
         return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
     })->setName('auth/users/commit');
-
-  });
+  }); // end group auth/user
 })->add($container->get('csrf'));
