@@ -43,9 +43,12 @@ class RouteHelper {
         $this->webSiteTitle = $app->get('settings')['webSiteTitle'];
     }
 
-    function returnWithFlash($redirect, $msg, $flashType='danger') {
-        $this->flash->addMessage($flashType, $msg);
-        return $this->response->withHeader('Location', $this->getPathFor($redirect));
+    function returnWithFlash($redirect, $msg, $flashType='danger', $withStatus=null) {
+        if (!empty($msg))
+            $this->flash->addMessage($flashType, $msg);
+        if (!empty($withStatus) && (int)$withStatus)
+            return $this->response->withHeader('Location', $this->getPathFor($redirect))->withStatus((int)$withStatus);
+        else return $this->response->withHeader('Location', $this->getPathFor($redirect));
     }
 
     public function getPathFor($page=''){
