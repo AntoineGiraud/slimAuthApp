@@ -96,6 +96,7 @@ $app->group('/auth', function () {
     })->setName('auth/users/export');
 
     $this->get('/delete/{id}/{token_name}/{token_value}', function ($request, $response, $args) {
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Suppression');
         if ($this->Auth->sourceConfig != 'database')
             return $this->Auth->forbidden($response, $this->router, 'auth/users/list', "Il n'est pas possible d'éditer les membres avec une configuration fichier. Migrez vers une configuration base de données.", 'danger');
         $id = (int)$args['id'];
