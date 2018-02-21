@@ -6,7 +6,8 @@ TRUNCATE TABLE auth_users;
 TRUNCATE TABLE auth_roles;
 
 INSERT INTO `auth_users` (`id`, `email`, `password`, `first_name`, `last_name`, `is_active`) VALUES
-(1, 'antoine.giraud@2015.icam.fr', '$2y$10$vF8C9hwamm2/srzgsjI2NOlBk1zHo39g/RGLL.gcum7hB5/s5I9tq', 'Antoine', 'Giraud', 1),
+(1, 'antoine.giraud@2015.icam.fr', 'cas_only', 'Antoine', 'Giraud', 1),
+(5, 'gregoire.giraud@2020.icam.fr', 'cas_only', 'Grégoire', 'Giraud', 1),
 (2, 'user1@operations', 'motdepasse', 'user 1', 'User', 1),
 (3, 'user2@entreprise', 'motdepasse', 'user 2', 'User', 1),
 (4, 'horsligne@entreprise', 'motdepasse', 'horsligne', 'User', 0);
@@ -34,8 +35,8 @@ INSERT INTO `configs` (`name`, `value`, `type_id`) VALUES
 
 INSERT INTO `auth_permissions` (`user_id`, `role_id`, `permission`, `type_id`, `can_access`) VALUES
 (1, 1, null, 3, 1),
+(5, 1, null, 3, 1),
 (2, 3, null, 3, 1),
-(1, null, 'superadmin', 2, 1),
 (null, 2, '/', 1, 1),
 (null, 2, 'about', 1, 1),
 (null, 2, 'login', 1, 1),

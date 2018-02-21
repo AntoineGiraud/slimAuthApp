@@ -28,7 +28,7 @@ $app->post('/login', function ($request, $response, $args) {
     if (!empty($_POST['email']) && !empty($_POST['password'])) {
         if ($this->Auth->login($_POST))
             return $RouteHelper->returnWithFlash('', "Vous êtes maintenant connecté", 'success');
-        else return $RouteHelper->returnWithFlash('login'.'?errorLogin=1', "Identifiants incorects", 'danger');
+        else return $RouteHelper->returnWithFlash('login'.'?errorLogin=1', "Identifiants incorrects", 'danger');
     } else if (!empty($_POST))
         return $RouteHelper->returnWithFlash('login'.'?errorLogin=1', "Veuillez remplir tous vos champs", 'danger');
     else return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('home'));
