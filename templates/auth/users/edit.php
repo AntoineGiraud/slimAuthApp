@@ -3,11 +3,10 @@
         Il n'est pas possible d'éditer les membres avec une configuration fichier. Migrez vers une configuration base de données.
     </p>
 <?php endif ?>
-
 <h1 class="page-header clearfix">
-    <div class="pull-left"><span class="glyphicon glyphicon-tower"></span> <?= 'Editer utilisateur <small>#'.$user['id'].'</small>' ?> </div>
+    <div class="pull-left"><span class="glyphicon glyphicon-tower"></span> <?= empty($user['id']) ? 'Ajouter un utilisateur' :'Editer utilisateur <small>#'.$user['id'].'</small>' ?> </div>
     <div class="pull-right">
-        <a href="<?= $RouteHelper->getPathFor('auth/users/add') ?>" class="btn btn-info">Ajouter</a>
+        <a href="<?= $RouteHelper->getPathFor('auth/users/edit') ?>" class="btn btn-info">Ajouter</a>
         <a href="<?= $RouteHelper->getPathFor('auth/users/list') ?>" class="btn btn-primary" onlick="">Retour liste</a>
     </div>
 </h1>
@@ -20,6 +19,14 @@
             <legend>Informations générales :</legend>
             <div>
                 <input name="id" type="hidden" value="<?= $user['id'] ?>">
+                <?php if (!empty($RouteHelper->conf['Auth']['canEditUserId'])) { ?>
+                    <div class="form-group <?= $ErrorsCtrl->hasError('newId')?'has-error':'' ?>">
+                        <label class="col-sm-2 control-label" for="inputnewId">Id : </label>
+                        <div class="col-sm-10">
+                            <input name="newId" class="form-control" id="inputnewId" type="number" min="1" value="<?= $user['id'] ?>">
+                        </div>
+                    </div>
+                <?php } ?>
                 <div class="form-group <?= $ErrorsCtrl->hasError('email')?'has-error':'' ?>">
                     <label class="col-sm-2 control-label" for="inputemail">Email : </label>
                     <div class="col-sm-10">

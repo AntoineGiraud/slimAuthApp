@@ -41,6 +41,10 @@ class User {
             $userRoles = $post['roles'];
             unset($post['roles']);
         }
+        if (isset($post['newId'])) {
+            $post['id'] = $post['newId'];
+            unset($post['newId']);
+        }
         $keysSql = implode(',', array_keys($post));
         $valuesSql = ':'.implode(', :', array_keys($post));
         $usrId = $DB->query("INSERT INTO auth_users ($keysSql) VALUES ($valuesSql)", $post);
@@ -61,6 +65,11 @@ class User {
         }
         $setSql = [];
         $data = [];
+        if (isset($post['newId'])) {
+            $setSql[] = 'id = :id';
+            $data['id'] = $post['newId'];
+            unset($post['newId']);
+        }
         foreach ($post as $key => $value) {
             if (isset($curUsr[$key]) && $curUsr[$key] == $value)
                 continue;

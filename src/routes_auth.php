@@ -118,42 +118,20 @@ $app->group('/auth', function () {
         }
     })->setName('auth/users/delete');
 
-    $this->get('/add', function ($request, $response, $args) {
-        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Ajout nouvel utilisateur');
-
-        $user = \CoreHelpers\User::getBlankFields();
-        $token = $this->Auth->getTokenSlimCsrf($this, $request);
-
-        $ErrorsCtrl = new \CoreHelpers\ErrorsController([]);
-        if (!empty($_SESSION['errorForm'])) {
-            $ErrorsCtrl = $_SESSION['errorForm']['Errors'];
-            $user = array_merge($user, $_SESSION['errorForm']['curForm']);
-            unset($_SESSION['errorForm']);
-        }
-
-        $this->Auth->setSlimRoutes($this);
-
-        $this->renderer->render($response, 'header.php', compact('RouteHelper', $args));
-        $this->renderer->render($response, 'auth/users/edit.php', compact('RouteHelper', 'routesSlim', 'user', 'ErrorsCtrl', 'token', $args));
-        return $this->renderer->render($response, 'footer.php', compact('RouteHelper', $args));
-    })->setName('auth/users/add');
-
-    $this->get('/edit', function ($request, $response, $args) {
-        return $response->withHeader('Location', $this->router->pathFor('auth/users/list'));
-    });
-    $this->get('/edit/{id}', function ($request, $response, $args) {
+    $this->get('/edit[/[{id}]]', function ($request, $response, $args) {
         if ($this->Auth->sourceConfig != 'database')
             return $this->Auth->forbidden($response, $this->router, 'auth/users/list', "Il n'est pas possible d'éditer les membres avec une configuration fichier. Migrez vers une configuration base de données.", 'danger');
 
-        $flash = $this->flash;
-        $id = (int)$args['id'];
-        $userMail = \CoreHelpers\User::getMailFromId($id);
-        if (empty($userMail))
-            return $RouteHelper->returnWithFlash('auth/users/list', "Utilisateur #$id inconnu.", 'warning');
-
-        $user = \CoreHelpers\User::getUser($this->Auth, $userMail, null, true);
-        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Editer utilisateur #'.$id.'');
-
+        $id = !empty($args['id'])? (int)$args['id'] : null;
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, (empty($id) ? 'Ajouter un utilisateur' : 'Editer l\'utilisateur #'.$id));
+        if (empty($id))
+            $user = \CoreHelpers\User::getBlankFields();
+        else {
+            $userMail = \CoreHelpers\User::getMailFromId($id);
+            if (empty($userMail))
+                return $RouteHelper->returnWithFlash('auth/users/list', "Utilisateur #$id inconnu.", 'warning');
+            $user = \CoreHelpers\User::getUser($this->Auth, $userMail, null, true);
+        }
         $token = $this->Auth->getTokenSlimCsrf($this, $request);
 
         $ErrorsCtrl = new \CoreHelpers\ErrorsController([]);
@@ -162,8 +140,6 @@ $app->group('/auth', function () {
             $user = array_merge($user, $_SESSION['errorForm']['curForm']);
             unset($_SESSION['errorForm']);
         }
-
-        $this->Auth->setSlimRoutes($this);
 
         $this->renderer->render($response, 'header.php', compact('RouteHelper', $args));
         $this->renderer->render($response, 'auth/users/edit.php', compact('RouteHelper', 'token', 'ErrorsCtrl', 'user', $args));
@@ -177,8 +153,13 @@ $app->group('/auth', function () {
         // var_dump($post);
 
         $userMail = (empty($post['id'])) ? '' : \CoreHelpers\User::getMailFromId($post['id']);
+        $userNewIdMail = (empty($post['newId'])) ? '' : \CoreHelpers\User::getMailFromId($post['newId']);
         if (!empty($post['id']) && empty($userMail))
-            return $RouteHelper->returnWithFlash('auth/users/list', "Utilisateur #$id inconnu.", 'warning');
+            return $RouteHelper->returnWithFlash('auth/users/list', "Utilisateur #".$post['id']." inconnu.", 'warning');
+        if (empty($RouteHelper->conf['Auth']['canEditUserId']) || empty($post['newId']))
+            unset($post['newId']);
+        else if (empty($post['id']) && !empty($post['newId']) && !empty($userNewIdMail) || !empty($post['id']) && !empty($post['newId']) && $post['newId'] != $post['id'] && !empty($userNewIdMail))
+            return $RouteHelper->returnWithFlash('auth/users/list', "Utilisateur #".$post['newId']." déjà existant.", 'warning');
 
         // Validation formulaire (ajoute ou mise à jour)
         // $userFields = array_keys(\CoreHelpers\User::getBlankFields());
@@ -226,7 +207,7 @@ $app->group('/auth', function () {
             $_SESSION['errorForm'] = ['Errors' => $ErrorsCtrl, 'curForm' => $post];
             $msg = $ErrorsCtrl->hasError." erreur".($ErrorsCtrl->hasError==1?'':'s')." dans le formlaire";
             if (empty($post['id'])) // Si ajout une personne
-                return $RouteHelper->returnWithFlash('auth/users/add', $msg, 'warning');
+                return $RouteHelper->returnWithFlash('auth/users/edit', $msg, 'warning');
             else
                 return $RouteHelper->returnWithFlash('auth/users/edit/'.$post['id'], $msg, 'warning');
         } else { // On a effectué toutes les vérifications

@@ -29,6 +29,7 @@ return [
         ],
 
         'Auth' => [
+            'canEditUserId' => false,
             'id' => 'monNomDeSite',
             'casUrl' => 'https://cas.icam.fr/cas/',
             'ldapUrl' => 'biximontreal.net',
