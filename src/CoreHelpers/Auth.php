@@ -22,6 +22,7 @@ class Auth {
 
     function __construct($AuthConfig, $DB) {
         $this->DB = $DB;
+        $this->AuthId = 'Auth'.(empty($AuthConfig['id'])?basename(dirname(__DIR__, 2)):'_'.$AuthConfig['id']);
         $this->casUrl = !empty($AuthConfig['casUrl']) ? $AuthConfig['casUrl'] : null;
         $this->ldapUrl = !empty($AuthConfig['ldapUrl']) ? $AuthConfig['ldapUrl'] : null;
         $this->sourceConfig = $AuthConfig['sourceConfig'];
@@ -152,8 +153,8 @@ class Auth {
         if (empty($user)) {
             return false;
         } else if ($user['is_active'] == 1) { // si l'utilisateur est actif dans la BDD
-            $_SESSION['Auth'] = array();
-            $_SESSION['Auth'] = $user;
+            $_SESSION[$this->AuthId] = array();
+            $_SESSION[$this->AuthId] = $user;
             return true;
         } else {
             $this->flash->addMessage('warning', '<strong>Votre compte n\'est pas actif !</strong><br/>Veuillez attendre que les administrateurs activent votre compte ou contactez nous !');
@@ -172,9 +173,9 @@ class Auth {
         $user = (!empty($userEmail))? User::getUser($this, $userEmail, null, true) : null;
         if (!empty($user)) {
             if($user['is_active'] == 1) { // si l'utilisateur est actif dans la BDD
-                $_SESSION['Auth'] = array();
-                $_SESSION['Auth'] = $user;
-                $_SESSION['Auth']['loggedUsingCas'] = true;
+                $_SESSION[$this->AuthId] = array();
+                $_SESSION[$this->AuthId] = $user;
+                $_SESSION[$this->AuthId]['loggedUsingCas'] = true;
                 return true;
             } else
                 $this->flash->addMessage('warning', '<strong>Votre compte n\'est pas actif !</strong><br/>Veuillez attendre que les administrateurs activent votre compte ou contactez nous !');
@@ -195,18 +196,18 @@ class Auth {
         if (empty($user))
             return false;
         foreach ($user as $key => $value)
-            $_SESSION['Auth'][$key] = $value;
+            $_SESSION[$this->AuthId][$key] = $value;
         return true;
     }
     function getSessionUserField($field) {
-        if (isset($_SESSION['Auth'][$field]))
-            return $_SESSION['Auth'][$field];
+        if (isset($_SESSION[$this->AuthId][$field]))
+            return $_SESSION[$this->AuthId][$field];
         else
             return false;
     }
     /** Récupère une info utilisateur */
     function getSessionUser() {
-        return !empty($_SESSION['Auth'])? $_SESSION['Auth'] : null;
+        return !empty($_SESSION[$this->AuthId])? $_SESSION[$this->AuthId] : null;
     }
     /** Redirige un utilisateur */
     function forbidden($response, $router, $pageRenvoi="home", $msg='', $cat='danger') {

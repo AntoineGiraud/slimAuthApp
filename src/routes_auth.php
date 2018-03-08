@@ -260,7 +260,7 @@ $app->group('/auth', function () {
                 $this->flash->addMessage('success', $msg);
                 echo $msg;
 
-                if ($_SESSION['Auth']['email'] == $userMail)
+                if ($_SESSION[$this->Auth->AuthId]['email'] == $userMail)
                     $this->Auth->fetchUserAuthLastDbVal($post['email']);
             }
         }

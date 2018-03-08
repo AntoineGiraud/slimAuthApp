@@ -29,6 +29,7 @@ return [
         ],
 
         'Auth' => [
+            'id' => 'monNomDeSite',
             'casUrl' => 'https://cas.icam.fr/cas/',
             'ldapUrl' => 'biximontreal.net',
             'sourceConfig' => 'database', // database or file
