@@ -13,7 +13,7 @@ $app->get('/login', function ($request, $response, $args) {
         } else return $response->withStatus(303)->withHeader('Location', $this->router->pathFor('login'));
     }
     if ($this->Auth->isLogged())
-        $this->flash->addMessage('info', 'Vous êtes déjà authentifés ! <a class="btn btn-sm btn-primary" href="'.$this->router->pathFor('home').'">Retour à l\'accueil</a>');
+        $this->flash->addMessage('info', 'Vous êtes déjà authentifé ! <a class="btn btn-sm btn-primary" href="'.$this->router->pathFor('home').'">Retour à l\'accueil</a>');
 
     $token = $this->Auth->getTokenSlimCsrf($this, $request);
 
