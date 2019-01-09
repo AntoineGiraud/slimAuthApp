@@ -214,7 +214,7 @@ class Auth {
         if (empty($msg))
             $msg = "<strong>Attention !</strong> Vous n'avez pas les droits pour accéder à cette page.";
         $this->flash->addMessage($cat, $msg);
-        return $response->withHeader('Location', $router->pathFor($pageRenvoi))/*->withStatus(401)*/;
+        return $response->withStatus(401)->withHeader('Location', $router->pathFor($pageRenvoi));
     }
 
     //////////////////////////////
