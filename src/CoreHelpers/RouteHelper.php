@@ -74,11 +74,15 @@ class RouteHelper {
         $return = str_replace(array('(',')','{','}'), '', $return);
         $return = str_replace(array(' - '), '-', $return);
         $return = str_replace(array(' ','\''), '-', $return);
-        $return = str_ireplace(array('é','è','ê','ë'), 'e', $return);
-        $return = str_ireplace(array('à','â','ä'), 'a', $return);
-        $return = str_ireplace(array('ï','î'), 'i', $return);
-        $return = str_ireplace(array('ö','ô'), 'o', $return);
-        $return = str_ireplace(array('û','ü'), 'u', $return);
+        $return = self::cleanAccentuationsOnly($return);
         return $return;
+    }
+    public static function cleanAccentuationsOnly($value) {
+        $value = str_ireplace(['é','è','ê','ë'], 'e', $value);
+        $value = str_ireplace(['à','â','ä'],     'a', $value);
+        $value = str_ireplace(['ï','î'],         'i', $value);
+        $value = str_ireplace(['ö','ô'],         'o', $value);
+        $value = str_ireplace(['û','ü'],         'u', $value);
+        return $value;
     }
 }

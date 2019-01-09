@@ -3,6 +3,22 @@
 
 // e.g: $app->add(new \Slim\Csrf\Guard);
 
+// valider la connexion a la base de données
+$app->add(function ($request, $response, $next) {
+
+    if (!empty($this->DB)) {
+        // $response->getBody()->write('BEFORE');
+        $response = $next($request, $response);
+        // $response->getBody()->write('AFTER');
+        return $response;
+    }
+
+    // On short cut l'application ! on affiche le message d'erreur
+    $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Erreur connexion BDD');
+    $this->renderer->render($response, 'header.php', compact('RouteHelper'));
+    $response->getBody()->write('<h3>Erreur de connexion <abbr title="Base de données">BDD</abbr> <code>'.$c->get('settings')['confSQL']['sql_host'].'</code></h3>');
+    return $this->renderer->render($response, 'footer.php', compact('RouteHelper'));
+});
 // sécuriser l'application à l'aide d'une authentification
 $app->add(function ($request, $response, $next) {
     $curPagePath = $request->getUri()->getPath();
