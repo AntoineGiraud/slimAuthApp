@@ -26,8 +26,9 @@ $container['logger'] = function ($c) {
 $container['csrf'] = function ($c) {
     $guard = new \Slim\Csrf\Guard();
     $guard->setFailureCallable(function ($request, $response, $next) {
-        $request = $request->withAttribute("csrf_status", false);
-        return $next($request, $response);
+        global $container;
+        $container['flash']->addMessage('danger', "Problème de validation du formulaire. Merci de réessayer. (CSRF failure)");
+        return $response->withHeader('Location', $_SERVER['REQUEST_URI']);
     });
     $guard->setStorageLimit(50);
     return $guard;
