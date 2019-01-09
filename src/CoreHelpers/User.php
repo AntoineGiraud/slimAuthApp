@@ -31,7 +31,6 @@ class User {
 
     public static function deleteUser($id) {
         global $DB;
-        $DB->query('DELETE FROM missions_votes WHERE user_id = :id', ['id' => $id]);
         $DB->query('DELETE FROM auth_permissions WHERE user_id = :id', ['id' => $id]);
         $DB->query('DELETE FROM auth_users WHERE id = :id', ['id' => $id]);
     }
