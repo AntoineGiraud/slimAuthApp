@@ -65,6 +65,14 @@ $app->group('/auth', function () {
         $this->renderer->render($response, 'auth/list_droits.php', compact('RouteHelper', 'users', $args));
         return $this->renderer->render($response, 'footer.php', compact('RouteHelper', $args));
     })->setName('auth/list_droits');
+    $app->get('/cron', function ($request, $response, $args) {
+        $RouteHelper = new \CoreHelpers\RouteHelper($this, $request, $response, 'Vue compte');
+        $cron = file_exists('/etc/crontab') ? file_get_contents('/etc/crontab') : '';
+
+        $this->renderer->render($response, 'header.php', compact('RouteHelper', $args));
+        $this->renderer->render($response, 'auth/cron.php', compact('RouteHelper', 'cron', $args));
+        return $this->renderer->render($response, 'footer.php', compact('RouteHelper', $args));
+    })->setName('auth/cron');
 
   $this->group('/users', function () {
     $this->get('/list', function ($request, $response, $args) {

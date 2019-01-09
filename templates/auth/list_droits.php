@@ -9,6 +9,10 @@
         <dt>cas url</dt>
         <dd><em><?= $RouteHelper->conf['Auth']['casUrl'] ?></em></dd>
     <?php endif ?>
+    <?php if (file_exists('/etc/crontab')): ?>
+        <dt>cron</dt>
+        <dd><a href="<?= $RouteHelper->getPathFor('auth/cron') ?>" class="btn btn-xs btn-info">Voir</a></dd>
+    <?php endif ?>
 </dl>
 
 <h1 class="page-header"><span class="glyphicon glyphicon-certificate"></span> Liste des droits</h1>
