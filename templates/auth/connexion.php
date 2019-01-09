@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?= $RouteHelper->getPageTitle() ?>">
     <meta name="author" content="Antoine Giraud">
-    <link rel="shortcut icon" href="<?= $RouteHelper->publicPath ?>/img/favicon.png">
+    <link rel="shortcut icon" href="<?= file_exists($RouteHelper->publicPath.'img/favicon.png') ? $RouteHelper->publicUrl.'img/favicon.png' : $RouteHelper->publicUrl.'img/favicon.ico' ?>">
 
     <!-- Le styles -->
-    <link href="<?= $RouteHelper->publicPath ?>css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= $RouteHelper->publicUrl ?>css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
         body {
           padding-top: 40px;
@@ -24,7 +24,7 @@
         }
         .form-signin .form-signin-heading,
         .form-signin .checkbox {
-          margin-bottom: 10px;
+          margin: 40px 0 30px 0;
         }
         .form-signin .checkbox {
           font-weight: normal;
@@ -71,20 +71,25 @@
       <?php endforeach ?>
 
       <form class="form-signin<?= (isset($_GET['errorLogin']))?' has-error':''; ?>" role="form" action="<?= $RouteHelper->getPathFor('login') ?>" method="POST">
-        <p style="text-align:center"><img src="<?= $RouteHelper->publicPath ?>/img/logo.png" style="max-width:200px;"></p>
-        <h2 class="form-signin-heading">Identifiez-vous !</h2>
+        <p style="text-align:center">
+          <?php $logo = (!empty($RouteHelper->conf['img']) ? $RouteHelper->conf['img'] : 'logo'); ?>
+          <img src="<?= $RouteHelper->publicUrl.'img/'.$logo.'.png' ?>" alt="<?= $logo ?>" style="max-width:200px;">
+        </p>
+        <h2 style="text-align:center" class="form-signin-heading">Identifiez-vous !</h2>
         <input type="hidden" name="<?= $token['nameKey'] ?>" value="<?= $token['name'] ?>">
         <input type="hidden" name="<?= $token['valueKey'] ?>" value="<?= $token['value'] ?>">
         <input type="email" name="email" class="form-control" placeholder="Email" required autofocus>
         <input type="password" name="password" class="form-control" placeholder="Password" required>
+        <br>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Se connecter</button>
         <?php if (!empty($RouteHelper->Auth->casUrl)): ?>
-        <a href="<?= $casUrl ?>" class="btn btn-lg btn-info btn-block">Ou avec <?= basename(dirname($RouteHelper->Auth->casUrl)) ?></a>
+        <a href="<?= $casUrl ?>" class="btn btn-lg btn-info btn-block" title="Se connecter avec le <?= basename(dirname($RouteHelper->Auth->casUrl)) ?>">Avec <em><?= basename(dirname($RouteHelper->Auth->casUrl)) ?></em></a>
         <?php endif; ?>
       </form>
         <hr>
-        <p style="text-align:center"><em>Page d'authentification vers le portail <strong><?= $RouteHelper->webSiteTitle ?></strong></em></p>
+        <p style="text-align:center"><em>Page d'authentification</em></p>
+        <h4 style="text-align:center"><?= $RouteHelper->webSiteTitle ?></h4>
     </div>
-    <script src="<?= $RouteHelper->publicPath ?>js/bootstrap.min.js"></script>
+    <script src="<?= $RouteHelper->publicUrl ?>js/bootstrap.min.js"></script>
   </body>
 </html>
