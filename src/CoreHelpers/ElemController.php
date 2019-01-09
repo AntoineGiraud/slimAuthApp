@@ -43,6 +43,7 @@ abstract class ElemController {
     // fetch & check up DB functions //
     ///////////////////////////////////
     public static function fetchRow($code) {
+        if (empty($code)) return null;
         global $DB;
         $table = static::tableName();
         $field = static::codeField();
@@ -51,6 +52,7 @@ abstract class ElemController {
         return empty($elem) ? null : $elem;
     }
     public static function fetchRowById($id) {
+        if (empty($id)) return null;
         global $DB;
         $table = static::tableName();
         $elem = $DB->queryFirst("SELECT * FROM $table
@@ -58,6 +60,7 @@ abstract class ElemController {
         return empty($elem) ? null : $elem;
     }
     public static function rowIdExists($id) {
+        if (empty($id)) return null;
         if (!is_numeric($id))
             return false;
         global $DB;
@@ -67,10 +70,14 @@ abstract class ElemController {
         return empty($res) ? false : current($res);
     }
     public static function rowCodeExists($code) {
+        if (empty($code)) return null;
         global $DB;
         $table = static::tableName();
         $field = static::codeField();
         $res = $DB->queryFirst("SELECT id FROM $table WHERE $field = :$field", [$field => $code]);
         return empty($res) ? false : (int)current($res);
+    }
+    public static function getFileExtension($file) {
+        return pathinfo($file, PATHINFO_EXTENSION);
     }
 }

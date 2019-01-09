@@ -31,6 +31,7 @@ class User {
 
     public static function deleteUser($id) {
         global $DB;
+        $DB->query('DELETE FROM missions_votes WHERE user_id = :id', ['id' => $id]);
         $DB->query('DELETE FROM auth_permissions WHERE user_id = :id', ['id' => $id]);
         $DB->query('DELETE FROM auth_users WHERE id = :id', ['id' => $id]);
     }
@@ -186,7 +187,7 @@ class User {
         } else { // database
             global $DB;
             // id, email, password, last_login, is_active, first_name, last_name, created_at, updated_at
-            $user = $DB->queryFirst('SELECT * FROM auth_users WHERE email = :email', ['email'=>$mail]);
+            $user = $DB->queryFirst("SELECT * FROM auth_users WHERE email=:email OR email LIKE CONCAT(:email, '@', '%')", ['email'=>$mail]);
             if (!empty($user) && !$ignorePswd) {
                 if ($user['password'] == "ldap_only" && !$ldapAuthValid)
                     throw new \CoreHelpers\loginLDAPonlyException("ldap_only", 1);

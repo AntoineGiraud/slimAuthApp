@@ -27,6 +27,9 @@ class Auth {
         $this->ldapUrl = !empty($AuthConfig['ldapUrl']) ? $AuthConfig['ldapUrl'] : null;
         $this->sourceConfig = $AuthConfig['sourceConfig'];
         $this->allUserRole = $AuthConfig['allUserRole'];
+        $this->addUserFromCasIfNotExists = $AuthConfig['addUserFromCasIfNotExists']??null;
+        $this->extensionMailIfNotExists = $AuthConfig['extensionMailIfNotExists']??'icam.fr';
+        $this->userActiveIfNotExists = $AuthConfig['userActiveIfNotExists']??false;
         if ($this->sourceConfig == 'file') {
             $roles = $AuthConfig['roles'];
             $this->permissions = $AuthConfig['permissions'];
@@ -182,8 +185,33 @@ class Auth {
         } else if ($userEmail == 'AuthenticationFailure' || $userEmail == "Cas return is weird" || $userEmail == "Return cannot be parsed") {
             $this->flash->addMessage('danger', $userEmail);
             return false;
-        } else if(!empty($userEmail)) {
-            $this->flash->addMessage('warning', "Vous n'avez pas les droits d'accéder au site.<br>Faites la demande aux responsables au besoin.");
+        } else if (!empty($userEmail)) {
+            if (empty($this->addUserFromCasIfNotExists))
+                $this->flash->addMessage('warning', "Vous (".$userEmail.") n'avez pas les droits d'accéder au site.<br>Faites la demande aux responsables si besoin est.");
+            else {
+                if (false !== strpos($userEmail, '@')) {
+                    $userEmail .= '@'.$this->extensionMailIfNotExists;
+                    $explode = explode('.', $userEmail, 2);
+                } else {
+                    $explode = explode('.', substr($userEmail, 0, strpos($userEmail, '@')), 2);
+                }
+                $usr = [
+                    'email' => $userEmail,
+                    'first_name' => $explode[0],
+                    'last_name' => $explode[1],
+                    'is_active' => $this->userActiveIfNotExists,
+                    'password' => 'cas_only'
+                ];
+                $usrId = \CoreHelpers\User::insert($usr);
+                $msg = "Ajout d'un utilisateur #".$usrId." : ".$usr['email'].' - membre';
+                if ($this->userActiveIfNotExists) {
+                    $_SESSION[$this->AuthId] = array();
+                    $_SESSION[$this->AuthId] = User::getUser($this, $userEmail, null, true);
+                    $_SESSION[$this->AuthId]['loggedUsingCas'] = true;
+                }
+                $this->flash->addMessage('warning', "Un compte vous a été créé (".$userEmail.")");
+                return true;
+            }
         }
         return false;
     }
@@ -214,7 +242,7 @@ class Auth {
         if (empty($msg))
             $msg = "<strong>Attention !</strong> Vous n'avez pas les droits pour accéder à cette page.";
         $this->flash->addMessage($cat, $msg);
-        return $response->withStatus(401)->withHeader('Location', $router->pathFor($pageRenvoi));
+        return $response->withHeader('Location', $router->pathFor($pageRenvoi))/*->withStatus(401)*/;
     }
 
     //////////////////////////////

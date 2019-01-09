@@ -55,7 +55,7 @@ class Cas{
           ->send();
         $r->body = str_replace("\n", "", $r->body);
         try {
-            $xml = new SimpleXMLElement($r->body);
+            $xml = new \SimpleXMLElement($r->body);
             return true;
         }catch (\Exception $e) {
             return false;
