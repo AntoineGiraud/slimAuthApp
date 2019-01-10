@@ -55,18 +55,14 @@
           </ul>
           <?php if ($Auth->isLogged()): ?>
             <ul class="nav navbar-nav navbar-right">
-              <li><p class="navbar-text"><small><em><?= $Auth->getSessionUserField('first_name') ?></em> #<?= $Auth->getSessionUserField('id') ?></small></p></li>
-              <?php if ($Auth->memberCanAccessPages('account')): ?>
-              <li class="dropdown <?= in_array($RouteHelper->curPage, ['account', 'auth/list_droits', 'auth/users/list']) ? 'active':'' ?>">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Compte<?= $Auth->isSuperAdmin()?'s':'' ?> <span class="caret"></span></a>
+              <?= $RouteHelper->showLinkLi('account', '<small><em>'.$Auth->getSessionUserField('first_name').'</em> #'. $Auth->getSessionUserField('id').'</small>', '" title="Mon compte"', $RouteHelper->curPage) ?>
+              <?php if ($Auth->isSuperAdmin()): ?>
+              <li class="dropdown  <?= in_array($RouteHelper->curPage, ['auth/list_droits', 'auth/users/list']) ? 'active':'' ?>">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                  <?= $RouteHelper->showLinkLi('account', '<span class="glyphicon glyphicon-user"></span> Mon compte', '', $RouteHelper->curPage) ?>
-                  <?php if ($Auth->isSuperAdmin()): ?>
-                    <li role="separator" class="divider"></li>
-                    <li class="dropdown-header">Administration des utilisateurs</li>
-                    <?= $RouteHelper->showLinkLi('auth/list_droits', '<span class="glyphicon glyphicon-certificate"></span> Liste des droits', '', $RouteHelper->curPage) ?>
-                    <?= $RouteHelper->showLinkLi('auth/users/list', '<span class="glyphicon glyphicon-user"></span> Liste des utilisateurs', '', $RouteHelper->curPage) ?>
-                  <?php endif ?>
+                    <li class="dropdown-header">Administration</li>
+                    <?= $RouteHelper->showLinkLi('auth/list_droits', '<span class="glyphicon glyphicon-certificate"></span> Droits', '', $RouteHelper->curPage) ?>
+                    <?= $RouteHelper->showLinkLi('auth/users/list', '<span class="glyphicon glyphicon-user"></span> Utilisateurs', '', $RouteHelper->curPage) ?>
                 </ul>
               </li>
               <?php endif ?>
