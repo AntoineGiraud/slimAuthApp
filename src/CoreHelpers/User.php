@@ -77,16 +77,18 @@ class User {
             $data[$key] = $value;
         }
         $setSql = implode(', ', $setSql);
-        if (!empty($setSql))
+        if (!empty($setSql)) {
             $DB->query("UPDATE `auth_users` SET $setSql WHERE `auth_users`.`id` = ".(int)$id, $data);
+        }
 
         // Maj des roles: si nouveau, on supprime tout et on rajoute les rôles
         $valuesRole = [];
-        $updateRole = count($userRoles) != count($curUsr['roles']);
+        $updateRole = count($userRoles) != count($curUsr['roles']) || !empty($data['id']);
+        $newId = !empty($data['id']) ? (int)$data['id'] : (int)$id ;
         foreach ($userRoles as $role) {
             if (!isset($curUsr['roles'][$role['slug']]))
                 $updateRole = true;
-            $valuesRole[] = '('.(int)$id.', '.(int)$role['id'].', 3)'; // user_has_role = 3
+            $valuesRole[] = '('.$newId.', '.(int)$role['id'].', 3)'; // user_has_role = 3
         }
 
         if ($updateRole)
