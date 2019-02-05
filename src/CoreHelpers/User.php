@@ -88,7 +88,7 @@ class User {
         foreach ($userRoles as $role) {
             if (!isset($curUsr['roles'][$role['slug']]))
                 $updateRole = true;
-            $valuesRole[] = '('.$newId.', '.(int)$role['id'].', 3)'; // user_has_role = 3
+            $valuesRole[(int)$role['id']] = '('.$newId.', '.(int)$role['id'].', 3)'; // user_has_role = 3
         }
 
         if ($updateRole)
