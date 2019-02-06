@@ -76,3 +76,7 @@ function getFirstAndLastDaysOfWeek($dateIso){
 function getPourcent($dividende, $diviseur, $precision=0) {
     return empty($diviseur) ? null : round(100*$dividende / $diviseur *pow(10, $precision))/pow(10, $precision);
 }
+function getDayPlusX($date, $offset=1) {
+    $d = new \DateTime( $date );
+    return $d->modify( ($offset>=0?$offset:'+'.$offset).' day' )->format("Y-m-d");
+}
