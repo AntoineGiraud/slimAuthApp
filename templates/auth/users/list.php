@@ -48,7 +48,7 @@
             <td>
                 <div class="pull-right">
                   <a href="<?= $RouteHelper->getPathFor('auth/users/edit/'.$user['id']) ?>" title="Editer l'utilisateur #<?= $user['id']; ?>"><i class="glyphicon glyphicon-pencil"></i></a>
-                  <a href="<?= $RouteHelper->getPathFor('auth/users/delete/'.$user['id'].'/'.$token['name'].'/'.$token['value']) ?>" title="Supprimer l'utilisateur #<?= $user['id']; ?>" onclick="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');"><i class="glyphicon glyphicon-trash"></i></a>
+                  <a href="<?= $RouteHelper->getPathFor('auth/users/delete/'.$user['id'].'/'.$token['name'].'/'.$token['value']) ?>" class="text-danger" title="Supprimer l'utilisateur #<?= $user['id']; ?>" onclick="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');"><i class="glyphicon glyphicon-trash"></i></a>
                 </div>
             </td>
         </tr>

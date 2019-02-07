@@ -99,6 +99,14 @@ class ErrorsController {
     public function hasError($key) {
         return !empty($this->errors[$key]);
     }
+    public function showError($key, $noHtml=false) {
+        if (empty($this->errors[$key]))
+            return '';
+        else if ($noHtml)
+            return $this->errors[$key]['msg'];
+        else
+            return '<span class="help-block">'.$this->errors[$key]['msg'].'</span>';
+    }
     public function getError($key) {
         return $this->errors[$key];
     }
